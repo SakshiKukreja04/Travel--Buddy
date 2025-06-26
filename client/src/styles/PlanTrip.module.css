@@ -1,0 +1,233 @@
+.bg {
+  min-height: 100vh;
+  width: 100vw;
+  background: url('/form.jpg') no-repeat center center/cover;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-top: 30px;
+}
+
+.navbar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.2rem 2.5rem 1.2rem 2.5rem;
+  background: transparent;
+  font-size: 1.1rem;
+}
+.logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #222;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.navLinks {
+  display: flex;
+  gap: 2.2rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.navLinks li a {
+  color: #222;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+.navLinks li a:hover {
+  color: #007bff;
+}
+.userCorner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.username {
+  font-size: 1rem;
+  color: #222;
+  font-weight: 500;
+}
+.profileIcon {
+  font-size: 2rem;
+  color: #222;
+}
+
+.centerCard {
+  margin-top: 10px;
+  background: rgba(255,255,255,0.95);
+  border-radius: 18px;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.10);
+  padding: 2.5rem 2.5rem 2rem 2.5rem;
+  max-width: 600px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 40px;
+}
+.title {
+  font-size: 2.1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+.subtitle {
+  font-size: 1.1rem;
+  color: #666;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+.form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+.inputGroup {
+  width: 100%;
+}
+.inputLabel {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  background: #f7f7f7;
+  border-radius: 8px;
+  padding: 0.7rem 1rem;
+  border: 1px solid #e0e0e0;
+  font-size: 1rem;
+}
+.inputIcon {
+  margin-right: 0.7rem;
+  color: #888;
+  font-size: 1.2rem;
+}
+.input {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 1rem;
+  width: 100%;
+}
+.datesRow {
+  display: flex;
+  gap: 1.2rem;
+  width: 100%;
+}
+.dateLabel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  font-size: 0.98rem;
+  color: #444;
+  gap: 0.3rem;
+}
+.preferenceRow {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  font-size: 1rem;
+  color: #444;
+}
+.radioLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: #f7f7f7;
+  border-radius: 7px;
+  padding: 0.4rem 1rem;
+  border: 1px solid #e0e0e0;
+  cursor: pointer;
+  font-size: 1rem;
+}
+.radioLabel input[type="radio"] {
+  accent-color: #007bff;
+}
+.budgetSection {
+  width: 100%;
+  margin-top: 0.5rem;
+}
+.slider {
+  width: 100%;
+  margin: 0.7rem 0 0.2rem 0;
+}
+.budgetLabels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.98rem;
+  color: #888;
+  margin-bottom: 0.5rem;
+}
+.budgetInputs {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+}
+.budgetInputs .input {
+  background: #f7f7f7;
+  border-radius: 7px;
+  border: 1px solid #e0e0e0;
+  padding: 0.6rem 1rem;
+  font-size: 1rem;
+  width: 100%;
+}
+.submitBtn {
+  width: 100%;
+  background: #222;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 1rem 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-top: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  transition: background 0.2s;
+}
+.submitBtn:hover {
+  background: #444;
+}
+.planeIcon {
+  font-size: 1.2rem;
+  margin-right: 0.3rem;
+}
+.infoText {
+  font-size: 0.95rem;
+  color: #888;
+  margin-top: 1.2rem;
+  text-align: center;
+}
+@media (max-width: 700px) {
+  .centerCard {
+    max-width: 98vw;
+    padding: 1.2rem 0.5rem 1.5rem 0.5rem;
+  }
+  .navbar {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1rem;
+    gap: 0.7rem;
+  }
+  .datesRow {
+    flex-direction: column;
+    gap: 0.7rem;
+  }
+  .budgetInputs {
+    flex-direction: column;
+    gap: 0.7rem;
+  }
+  .preferenceRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.7rem;
+  }
+} 

@@ -1,0 +1,155 @@
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.logoImg {
+    height: 40px;
+}
+
+.navLinks {
+    list-style: none;
+    display: flex;
+    gap: 2rem;
+    margin: 0;
+    padding: 0;
+    margin-left: 40px;
+    
+}
+
+.navLinks li a {
+    text-decoration: none;
+    color: #222;
+    font-weight: 500;
+    transition: color 0.2s;
+    
+}
+
+.navLinks li a:hover {
+    color: #007bff;
+}
+
+.exploreLink {
+    font-weight: bold;
+    color: #007bff;
+}
+
+.buttons {
+    display: flex;
+    gap: 1rem;
+}
+
+.buttons button {
+    padding: 0.5rem 1.2rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1rem;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.loginBtn {
+    background-color: #007bff;
+    color: white;
+    border: 1px solid #007bff;
+}
+
+.loginBtn:hover, .loginBtn.active {
+    background-color: #0056b3;
+}
+
+.signupBtn {
+    background-color: #ffc107;
+    color: #333;
+    border: 1px solid #ffc107;
+}
+
+.signupBtn:hover, .signupBtn.active {
+    background-color: #e0a800;
+}
+
+.userEmail {
+    font-size: 1rem;
+    color: #333;
+    margin-right: 0.7rem;
+    font-weight: 500;
+}
+
+.profileBtn {
+    background-color: #eee;
+    color: #333;
+    border: 1px solid #ccc;
+    margin-right: 0.5rem;
+}
+
+.profileBtn:hover, .profileBtn.active {
+    background-color: #ddd;
+}
+
+.logoutBtn {
+    background-color: #fff;
+    color: #d32f2f;
+    border: 1px solid #d32f2f;
+    font-weight: bold;
+    margin-left: 0.5rem;
+}
+
+.logoutBtn:hover {
+    background-color: #d32f2f;
+    color: #fff;
+}
+
+.profileRight {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    gap: 1rem;
+}
+
+.userName {
+    font-size: 1rem;
+    color: #333;
+    font-weight: 500;
+    margin-right: 0.7rem;
+}
+
+@media (max-width: 900px) {
+    .navLinks {
+        gap: 1rem;
+    }
+    .buttons {
+        gap: 0.5rem;
+    }
+}
+
+@media (max-width: 700px) {
+    .navbar {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 1rem;
+    }
+    .navLinks {
+        margin-top: 0.5rem;
+        gap: 0.7rem;
+    }
+    .buttons {
+        margin-top: 0.5rem;
+    }
+} 

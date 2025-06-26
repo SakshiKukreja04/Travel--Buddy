@@ -1,0 +1,186 @@
+.pageContainer {
+  padding: 2rem;
+  background-color: #eaf2f8;
+  font-family: 'Poppins', sans-serif;
+}
+
+.mainTitle {
+  font-size: 2.5rem;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.mainSubtitle {
+  font-size: 1.2rem;
+  color: #555;
+  margin-bottom: 2rem;
+}
+
+.card {
+  background-color: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.cardTitle {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  color: #333;
+}
+
+.topGrid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.5rem;
+}
+
+.hotelContent {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.hotelImage {
+  width: 150px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.hotelDetails h3 {
+  margin: 0 0 0.5rem 0;
+}
+.hotelDetails p {
+  margin: 0.2rem 0;
+  color: #555;
+}
+.hotelPrice {
+  font-weight: bold;
+  font-size: 1.2rem;
+  color: #333;
+  margin-top: 0.5rem;
+}
+
+.weatherList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.weatherList li {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #eee;
+}
+.weatherList li:last-child {
+  border-bottom: none;
+}
+
+.packingGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.packingGrid div {
+  display: flex;
+  flex-direction: column;
+}
+.packingGrid h4 {
+  margin-bottom: 0.5rem;
+}
+.packingGrid label {
+  margin-bottom: 0.3rem;
+  color: #555;
+}
+
+.mealsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+.mealCard {
+  border: 1px solid #eee;
+  border-radius: 8px;
+  overflow: hidden;
+  text-align: center;
+}
+.mealCard img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+}
+.mealCard h3 {
+  margin: 0.7rem 0 0.3rem 0;
+}
+.mealCard p {
+  color: #555;
+  margin-bottom: 0.7rem;
+}
+
+.itinerary {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.dayCard {
+  border: 1px solid #ddd;
+  padding: 1rem;
+  border-radius: 8px;
+}
+.dayCard h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.2rem;
+  color: #007bff;
+}
+
+.budgetTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+.budgetTable th, .budgetTable td {
+  padding: 0.8rem;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+.budgetTable th {
+  background-color: #f8f9fa;
+}
+.budgetTable tfoot {
+  font-weight: bold;
+}
+
+.downloadSection {
+  text-align: right;
+  margin-top: 1.5rem;
+}
+.downloadBtn {
+  background-color: #333;
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+@media (max-width: 992px) {
+  .topGrid, .mealsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .packingGrid {
+    grid-template-columns: 1fr;
+  }
+  .hotelContent {
+    flex-direction: column;
+  }
+} 

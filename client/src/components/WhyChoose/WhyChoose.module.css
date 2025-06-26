@@ -1,0 +1,53 @@
+.whyChoose {
+    padding: 4rem 2rem;
+    text-align: center;
+    background-color: #f8f9fa;
+}
+
+.title {
+    font-size: 2.5rem;
+    margin-bottom: 3rem;
+    color: #333;
+}
+
+.cards {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.card {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 10px;
+    width: 300px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+.icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: #007bff;
+    font-weight: bold;
+}
+
+.card h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.card p {
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #555;
+}
+
+@media (max-width: 992px) {
+    .cards {
+        flex-direction: column;
+        align-items: center;
+    }
+} 
