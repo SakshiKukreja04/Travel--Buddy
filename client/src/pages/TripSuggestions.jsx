@@ -4,6 +4,7 @@ import { FaHotel, FaCloudSun, FaShoppingBag, FaUtensils, FaCalendarAlt, FaRupeeS
 import Footer from '../components/Footer/Footer';
 import { useUser } from '../UserContext';
 import { getTripSuggestions } from '../utils/tripPlannerAPI';
+import { fetchEventbriteEvents } from '../utils/eventbriteAPI';
 
 const TripSuggestions = () => {
   const { tripDetails } = useUser();
@@ -14,6 +15,10 @@ const TripSuggestions = () => {
   const [deepSeekResult, setDeepSeekResult] = useState(null);
   const [loadingDeepSeek, setLoadingDeepSeek] = useState(false);
   const [deepSeekError, setDeepSeekError] = useState(null);
+
+  const [events, setEvents] = useState([]);
+  const [loadingEvents, setLoadingEvents] = useState(false);
+  const [eventsError, setEventsError] = useState(null);
 
   const city = tripDetails.city || '';
   const checkin = tripDetails.checkin || '';
@@ -54,6 +59,7 @@ const TripSuggestions = () => {
           day: new Date(item.dt * 1000).toLocaleDateString('en-US', { weekday: 'long' }),
           temp: `${Math.round(item.main.temp)}°C`,
           icon: item.weather[0].main,
+          description: item.weather[0].description
         }));
         setWeather(formattedWeather);
       } catch (err) {
@@ -97,6 +103,16 @@ const TripSuggestions = () => {
       .finally(() => setLoadingDeepSeek(false));
   }, [city, checkin, checkout, preference, budget]);
 
+  useEffect(() => {
+    if (!city || !checkin || !checkout) return;
+    setLoadingEvents(true);
+    setEventsError(null);
+    fetchEventbriteEvents(city, checkin, checkout)
+      .then(setEvents)
+      .catch(err => setEventsError(err.message))
+      .finally(() => setLoadingEvents(false));
+  }, [city, checkin, checkout]);
+
   const weatherIconMap = {
     Clear: '☀️', Clouds: '⛅', Rain: '🌧️', Drizzle: '🌦️', Thunderstorm: '⛈️',
     Snow: '❄️', Mist: '🌫️', Smoke: '🌫️', Haze: '🌫️', Dust: '🌫️', Fog: '🌫️',
@@ -131,7 +147,16 @@ const TripSuggestions = () => {
                   <p><b>{deepSeekResult.hotel.name}</b></p>
                   <p>{deepSeekResult.hotel.type}</p>
                   <p><b>Cost:</b> {deepSeekResult.hotel.totalCost}</p>
-                  <p><b>Features:</b> {deepSeekResult.hotel.features?.join(', ')}</p>
+                  <b>Features:</b>
+                  {Array.isArray(deepSeekResult.hotel.features) && deepSeekResult.hotel.features.length > 0 ? (
+                    <ul>
+                      {deepSeekResult.hotel.features.map((feature, idx) => (
+                        <li key={idx}>{feature}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <span> Not specified</span>
+                  )}
                 </section>
               )}
 
@@ -140,8 +165,15 @@ const TripSuggestions = () => {
                   <h3>Meals</h3>
                   {Object.entries(deepSeekResult.meals).map(([mealType, mealInfo]) => (
                     <div key={mealType} style={{ marginBottom: '0.5em' }}>
-                      <b>{mealType.charAt(0).toUpperCase() + mealType.slice(1)}:</b> {mealInfo.suggestion} - {mealInfo.costPerDay}<br/>
-                      <i>Recommended: {mealInfo.recommendedSpots?.join(', ')}</i>
+                      <b>{mealType.charAt(0).toUpperCase() + mealType.slice(1)}:</b><br/>
+                      {mealInfo.cuisineType && <span><b>Cuisine:</b> {mealInfo.cuisineType}<br/></span>}
+                      {mealInfo.famousDish && <span><b>Famous Dish:</b> {mealInfo.famousDish}<br/></span>}
+                      {mealInfo.minCost && <span><b>Min Cost:</b> ₹{mealInfo.minCost}<br/></span>}
+                      {mealInfo.suggestion && <span><b>Suggestion:</b> {mealInfo.suggestion}<br/></span>}
+                      {mealInfo.costPerDay && <span><b>Cost/Day:</b> {mealInfo.costPerDay}<br/></span>}
+                      {mealInfo.recommendedSpots && mealInfo.recommendedSpots.length > 0 && (
+                        <span><i>Recommended: {mealInfo.recommendedSpots.join(', ')}</i></span>
+                      )}
                     </div>
                   ))}
                 </section>
@@ -151,10 +183,20 @@ const TripSuggestions = () => {
                 <section className={styles.itinerarySection}>
                 {Object.entries(deepSeekResult.itinerary).map(([dayKey, details]) => (
                   <div className={styles.itineraryDayCard} key={dayKey}>
-                    <h4>{dayKey.toUpperCase()}</h4>
+                    <h4>{dayKey}</h4>
                     <ul>
                       {Object.entries(details).map(([k, v]) => (
-                        <li key={k}><b>{k}:</b> {v}</li>
+                        <li key={k}>
+                          <b>{k}:</b> {v && typeof v === 'object' && v.place ? (
+                            <>
+                              {v.place} {v.minTransportCost !== undefined && (
+                                <span style={{ color: '#007bff' }}> (Min Transport: ₹{v.minTransportCost})</span>
+                              )}
+                            </>
+                          ) : (
+                            v
+                          )}
+                        </li>
                       ))}
                     </ul>
                   </div>
@@ -175,6 +217,17 @@ const TripSuggestions = () => {
                   <p><b>Total:</b> {deepSeekResult.estimatedTotal.total}</p>
                 </section>
               )}
+
+              {deepSeekResult.packingList && Array.isArray(deepSeekResult.packingList) && deepSeekResult.packingList.length > 0 && (
+                <section>
+                  <h3>Packing List</h3>
+                  <ul>
+                    {deepSeekResult.packingList.map((item, idx) => (
+                      <li key={idx}>{item}</li>
+                    ))}
+                  </ul>
+                </section>
+              )}
             </>
           ) : typeof deepSeekResult === 'string' ? (
             <pre>{deepSeekResult}</pre>
@@ -192,11 +245,39 @@ const TripSuggestions = () => {
             ) : (
               <ul className={styles.weatherList}>
                 {weather.map(day => (
-                  <li key={day.day}><span>{day.day}</span> <span>{weatherIconMap[day.icon] || '❓'} {day.temp}</span></li>
+                  <li key={day.day}>
+                    <span>{day.day}</span> <span>{weatherIconMap[day.icon] || '❓'} {day.temp}</span>
+                    <span style={{ marginLeft: '1em', color: '#555', fontStyle: 'italic' }}>{day.description && `(${day.description.charAt(0).toUpperCase() + day.description.slice(1)})`}</span>
+                  </li>
                 ))}
               </ul>
             )}
           </div>
+        </div>
+
+        <div className={styles.card}>
+          <h2>Local Events (Eventbrite)</h2>
+          {loadingEvents ? (
+            <p>Loading events...</p>
+          ) : eventsError ? (
+            <p style={{ color: 'red' }}>{eventsError}</p>
+          ) : events.length === 0 ? (
+            <p>No events found for your dates.</p>
+          ) : (
+            <ul>
+              {events.map(event => (
+                <li key={event.id}>
+                  <a href={event.url} target="_blank" rel="noopener noreferrer">
+                    {event.name.text}
+                  </a>
+                  <br />
+                  <span>
+                    {event.start.local.slice(0, 10)} at {event.venue?.name || 'Unknown Venue'}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
         <div className={styles.downloadSection}>
