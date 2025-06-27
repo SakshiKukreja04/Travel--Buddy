@@ -1,60 +1,107 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from '../styles/TripSuggestions.module.css';
 import { FaHotel, FaCloudSun, FaShoppingBag, FaUtensils, FaCalendarAlt, FaRupeeSign, FaDownload } from 'react-icons/fa';
 import Footer from '../components/Footer/Footer';
+import { useUser } from '../UserContext';
+import { getTripSuggestions } from '../utils/tripPlannerAPI';
 
 const TripSuggestions = () => {
-  // Dummy Data
-  const hotel = {
-    name: 'Grand Palace Resort',
-    rating: 4.5,
-    reviews: 324,
-    distance: '2.5km from city center',
-    price: '3,500',
-    image: '/hotel.jpg',
+  const { tripDetails } = useUser();
+  const [weather, setWeather] = useState([]);
+  const [loadingWeather, setLoadingWeather] = useState(true);
+  const [weatherError, setWeatherError] = useState(null);
+
+  const [deepSeekResult, setDeepSeekResult] = useState(null);
+  const [loadingDeepSeek, setLoadingDeepSeek] = useState(false);
+  const [deepSeekError, setDeepSeekError] = useState(null);
+
+  const city = tripDetails.city || '';
+  const checkin = tripDetails.checkin || '';
+  const checkout = tripDetails.checkout || '';
+  const preference = tripDetails.preference || '';
+  const budget = tripDetails.budget || 10000;
+
+  useEffect(() => {
+    const fetchWeather = async () => {
+      const apiKey = import.meta.env.VITE_OPENWEATHER_API_KEY;
+      if (!apiKey) {
+        setWeatherError("OpenWeatherMap API key not found. Please add it to your client/.env file.");
+        setLoadingWeather(false);
+        return;
+      }
+      setLoadingWeather(true);
+      try {
+        const response = await fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=metric&cnt=40&appid=${apiKey}`);
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Failed to fetch weather data.');
+        }
+        const data = await response.json();
+        const dailyForecasts = data.list.filter(item => item.dt_txt.includes("12:00:00")).slice(0, 4);
+        if (dailyForecasts.length === 0 && data.list.length > 0) {
+          const seenDays = new Set();
+          const fallbackForecasts = [];
+          for (const item of data.list) {
+            const day = new Date(item.dt * 1000).toISOString().split('T')[0];
+            if (!seenDays.has(day) && fallbackForecasts.length < 4) {
+              fallbackForecasts.push(item);
+              seenDays.add(day);
+            }
+          }
+          dailyForecasts.push(...fallbackForecasts);
+        }
+        const formattedWeather = dailyForecasts.map(item => ({
+          day: new Date(item.dt * 1000).toLocaleDateString('en-US', { weekday: 'long' }),
+          temp: `${Math.round(item.main.temp)}°C`,
+          icon: item.weather[0].main,
+        }));
+        setWeather(formattedWeather);
+      } catch (err) {
+        setWeatherError(err.message);
+      } finally {
+        setLoadingWeather(false);
+      }
+    };
+    fetchWeather();
+  }, [city]);
+
+  useEffect(() => {
+    if (!city || !checkin || !checkout || !preference || !budget) return;
+    setLoadingDeepSeek(true);
+    setDeepSeekError(null);
+    setDeepSeekResult(null);
+    getTripSuggestions({ city, checkIn: checkin, checkOut: checkout, preference, budget })
+      .then(result => {
+        let parsed = null;
+        if (typeof result === 'string') {
+          // Try to extract JSON from within markdown or extra text
+          const firstBrace = result.indexOf('{');
+          const lastBrace = result.lastIndexOf('}');
+          if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+            const jsonString = result.substring(firstBrace, lastBrace + 1);
+            try {
+              parsed = JSON.parse(jsonString);
+            } catch (e) {
+              setDeepSeekResult(result);
+              return;
+            }
+            setDeepSeekResult(parsed);
+          } else {
+            setDeepSeekResult(result);
+          }
+        } else {
+          setDeepSeekResult(result);
+        }
+      })
+      .catch(err => setDeepSeekError(err.message))
+      .finally(() => setLoadingDeepSeek(false));
+  }, [city, checkin, checkout, preference, budget]);
+
+  const weatherIconMap = {
+    Clear: '☀️', Clouds: '⛅', Rain: '🌧️', Drizzle: '🌦️', Thunderstorm: '⛈️',
+    Snow: '❄️', Mist: '🌫️', Smoke: '🌫️', Haze: '🌫️', Dust: '🌫️', Fog: '🌫️',
+    Sand: '🌫️', Ash: '🌫️', Squall: '🌬️', Tornado: '🌪️'
   };
-
-  const weather = [
-    { day: 'Today', temp: '28°C', icon: '☀️' },
-    { day: 'Tomorrow', temp: '24°C', icon: '🌧️' },
-    { day: 'Day 3', temp: '26°C', icon: '⛅' },
-    { day: 'Day 4', temp: '30°C', icon: '☀️' },
-  ];
-
-  const packingList = {
-    clothing: ['T-shirts (3-4)', 'Pants (2)', 'Jacket'],
-    essentials: ['Toiletries', 'Medications', 'Phone Charger'],
-    documents: ['ID/Passport', 'Travel Tickets', 'Hotel Booking'],
-  };
-
-  const meals = [
-    { name: 'Local Street Food', desc: 'Authentic local flavors', image: '/meal1.jpg' },
-    { name: 'Rooftop Restaurant', desc: 'Fine dining experience', image: '/meal2.jpg' },
-    { name: 'Cafe Corner', desc: 'Coffee and pastries', image: '/meal3.jpg' },
-  ];
-
-  const itinerary = [
-    {
-      day: 'Day 1 - Arrival & City Tour',
-      places: ['Central Market', 'Historic Temple', 'City Museum'],
-      activities: 'Walking tour, Market visit',
-      transportCost: 200,
-    },
-    {
-      day: 'Day 2 - Adventure & Nature',
-      places: ['Mountain Trail', 'Scenic Viewpoint', 'Adventure Park'],
-      activities: 'Hiking, Photography',
-      transportCost: 350,
-    },
-  ];
-
-  const budget = [
-    { item: 'Hotel (3 nights)', category: 'Accommodation', cost: 10500 },
-    { item: 'Meals', category: 'Food', cost: 3000 },
-    { item: 'Activities', category: 'Entertainment', cost: 2500 },
-    { item: 'Transport', category: 'Travel', cost: 1500 },
-  ];
-  const totalBudget = budget.reduce((acc, item) => acc + item.cost, 0);
 
   return (
     <>
@@ -62,105 +109,96 @@ const TripSuggestions = () => {
         <h1 className={styles.mainTitle}>Your Trip Suggestions</h1>
         <p className={styles.mainSubtitle}>Personalized recommendations for your upcoming adventure</p>
 
+        <div className={styles.card}>
+          <h2>AI Trip Plan (DeepSeek)</h2>
+          <div style={{ marginBottom: '1rem' }}>
+            <b>City:</b> {city} <br/>
+            <b>Check-in:</b> {checkin} <br/>
+            <b>Check-out:</b> {checkout} <br/>
+            <b>Preference:</b> {preference} <br/>
+            <b>Budget:</b> ₹{budget}
+          </div>
+
+          {loadingDeepSeek ? (
+            <p>Loading AI trip plan...</p>
+          ) : deepSeekError ? (
+            <p style={{ color: 'red' }}>{deepSeekError}</p>
+          ) : deepSeekResult && typeof deepSeekResult === 'object' ? (
+            <>
+              {deepSeekResult.hotel && (
+                <section>
+                  <h3>Hotel</h3>
+                  <p><b>{deepSeekResult.hotel.name}</b></p>
+                  <p>{deepSeekResult.hotel.type}</p>
+                  <p><b>Cost:</b> {deepSeekResult.hotel.totalCost}</p>
+                  <p><b>Features:</b> {deepSeekResult.hotel.features?.join(', ')}</p>
+                </section>
+              )}
+
+              {deepSeekResult.meals && (
+                <section>
+                  <h3>Meals</h3>
+                  {Object.entries(deepSeekResult.meals).map(([mealType, mealInfo]) => (
+                    <div key={mealType} style={{ marginBottom: '0.5em' }}>
+                      <b>{mealType.charAt(0).toUpperCase() + mealType.slice(1)}:</b> {mealInfo.suggestion} - {mealInfo.costPerDay}<br/>
+                      <i>Recommended: {mealInfo.recommendedSpots?.join(', ')}</i>
+                    </div>
+                  ))}
+                </section>
+              )}
+
+              {deepSeekResult.itinerary && (
+                <section className={styles.itinerarySection}>
+                {Object.entries(deepSeekResult.itinerary).map(([dayKey, details]) => (
+                  <div className={styles.itineraryDayCard} key={dayKey}>
+                    <h4>{dayKey.toUpperCase()}</h4>
+                    <ul>
+                      {Object.entries(details).map(([k, v]) => (
+                        <li key={k}><b>{k}:</b> {v}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </section>
+              
+              
+              )}
+
+              {deepSeekResult.estimatedTotal && (
+                <section>
+                  <h3>Estimated Budget</h3>
+                  <ul>
+                    {Object.entries(deepSeekResult.estimatedTotal.breakdown || {}).map(([k, v]) => (
+                      <li key={k}><b>{k}:</b> {v}</li>
+                    ))}
+                  </ul>
+                  <p><b>Total:</b> {deepSeekResult.estimatedTotal.total}</p>
+                </section>
+              )}
+            </>
+          ) : typeof deepSeekResult === 'string' ? (
+            <pre>{deepSeekResult}</pre>
+          ) : null}
+        </div>
+
         <div className={styles.topGrid}>
           <div className={styles.card}>
-            <h2 className={styles.cardTitle}><FaHotel /> Hotel Recommendation</h2>
-            <div className={styles.hotelContent}>
-              <img src={hotel.image} alt={hotel.name} className={styles.hotelImage} />
-              <div className={styles.hotelDetails}>
-                <h3>{hotel.name}</h3>
-                <p>{'⭐'.repeat(Math.round(hotel.rating))} ({hotel.reviews} reviews)</p>
-                <p>{hotel.distance}</p>
-                <p className={styles.hotelPrice}>₹{hotel.price}/night</p>
-              </div>
-            </div>
-          </div>
-          <div className={styles.card}>
             <h2 className={styles.cardTitle}><FaCloudSun /> Weather Forecast</h2>
-            <ul className={styles.weatherList}>
-              {weather.map(day => (
-                <li key={day.day}>
-                  <span>{day.day}</span>
-                  <span>{day.icon} {day.temp}</span>
-                </li>
-              ))}
-            </ul>
+            <input type="text" value={city} readOnly style={{ padding: '0.5rem' }} />
+            {loadingWeather ? (
+              <p>Loading weather forecast...</p>
+            ) : weatherError ? (
+              <p>{weatherError}</p>
+            ) : (
+              <ul className={styles.weatherList}>
+                {weather.map(day => (
+                  <li key={day.day}><span>{day.day}</span> <span>{weatherIconMap[day.icon] || '❓'} {day.temp}</span></li>
+                ))}
+              </ul>
+            )}
           </div>
         </div>
 
-        <div className={styles.card}>
-          <h2 className={styles.cardTitle}><FaShoppingBag /> Packing List</h2>
-          <div className={styles.packingGrid}>
-            <div>
-              <h4>Clothing</h4>
-              {packingList.clothing.map(item => <label key={item}><input type="checkbox"/> {item}</label>)}
-            </div>
-            <div>
-              <h4>Essentials</h4>
-              {packingList.essentials.map(item => <label key={item}><input type="checkbox"/> {item}</label>)}
-            </div>
-            <div>
-              <h4>Documents</h4>
-              {packingList.documents.map(item => <label key={item}><input type="checkbox"/> {item}</label>)}
-            </div>
-          </div>
-        </div>
-
-        <div className={styles.card}>
-          <h2 className={styles.cardTitle}><FaUtensils /> Meal Suggestions</h2>
-          <div className={styles.mealsGrid}>
-            {meals.map(meal => (
-              <div key={meal.name} className={styles.mealCard}>
-                <img src={meal.image} alt={meal.name} />
-                <h3>{meal.name}</h3>
-                <p>{meal.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className={styles.card}>
-          <h2 className={styles.cardTitle}><FaCalendarAlt /> Day-Wise Itinerary</h2>
-          <div className={styles.itinerary}>
-            {itinerary.map(day => (
-              <div key={day.day} className={styles.dayCard}>
-                <h4>{day.day}</h4>
-                <p><b>Places to Visit:</b> {day.places.join(', ')}</p>
-                <p><b>Activities:</b> {day.activities}</p>
-                <p><b>Transport Cost:</b> ₹{day.transportCost}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className={styles.card}>
-          <h2 className={styles.cardTitle}><FaRupeeSign /> Trip Budget</h2>
-          <table className={styles.budgetTable}>
-            <thead>
-              <tr>
-                <th>Item</th>
-                <th>Category</th>
-                <th>Cost (₹)</th>
-              </tr>
-            </thead>
-            <tbody>
-              {budget.map(item => (
-                <tr key={item.item}>
-                  <td>{item.item}</td>
-                  <td>{item.category}</td>
-                  <td>{item.cost.toLocaleString()}</td>
-                </tr>
-              ))}
-            </tbody>
-            <tfoot>
-              <tr>
-                <td colSpan="2">Estimated Total Budget</td>
-                <td>₹{totalBudget.toLocaleString()}</td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
-        
         <div className={styles.downloadSection}>
           <button className={styles.downloadBtn}><FaDownload /> Download Trip Plan (PDF)</button>
         </div>
@@ -170,4 +208,4 @@ const TripSuggestions = () => {
   );
 };
 
-export default TripSuggestions; 
+export default TripSuggestions;

@@ -12,6 +12,15 @@ export function UserProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Add tripDetails state
+  const [tripDetails, setTripDetails] = useState({
+    city: '',
+    checkin: '',
+    checkout: '',
+    preference: '',
+    budget: 10000
+  });
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser);
@@ -23,7 +32,10 @@ export function UserProvider({ children }) {
   const logout = () => signOut(auth);
 
   return (
-    <UserContext.Provider value={{ user, logout }}>
+    <UserContext.Provider value={{
+      user, logout,
+      tripDetails, setTripDetails
+    }}>
       {!loading && children}
     </UserContext.Provider>
   );

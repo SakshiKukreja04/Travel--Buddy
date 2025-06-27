@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import Footer from '../components/Footer/Footer';
 
 const PlanTrip = () => {
-  const { user } = useUser();
+  const { user, setTripDetails } = useUser();
   const navigate = useNavigate();
   const [destination, setDestination] = useState('');
   const [checkIn, setCheckIn] = useState('');
@@ -32,7 +32,13 @@ const PlanTrip = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log({ destination, checkIn, checkOut, preference, minBudget, maxBudget });
+    setTripDetails({
+      city: destination,
+      checkin: checkIn,
+      checkout: checkOut,
+      preference,
+      budget
+    });
     navigate('/results');
   };
 
