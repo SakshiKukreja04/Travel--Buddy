@@ -58,6 +58,71 @@ app.post('/api/deepseek-trip', async (req, res) => {
   }
 });
 
+/* =========================================================
+   P R E D I C T H Q   E V E N T S
+   ========================================================= */
+   app.post('/api/predicthq-events', async (req, res) => {
+    const { city, checkin, checkout } = req.body;
+    const PREDICTHQ_API_KEY = process.env.PREDICTHQ_API_KEY;
+  
+    if (!PREDICTHQ_API_KEY)
+      return res.status(500).json({ error: 'PredictHQ key missing' });
+  
+    try {
+      /* 1️⃣  Get lat/lon with free OpenStreetMap Nominatim */
+      const geoResp = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+          city
+        )}&limit=1`
+      );
+      const geoJson = await geoResp.json();
+      if (!geoJson.length) throw new Error('City not found by geocoder');
+  
+      const { lat, lon, display_name } = geoJson[0];
+  
+      /* 2️⃣  Query PredictHQ — return LOCAL start/end times */
+      const startIso = new Date(checkin).toISOString();
+      const endIso   = new Date(checkout).toISOString();
+  
+      const phqResp = await fetch(
+        `https://api.predicthq.com/v1/events?within=50km@${lat},${lon}` +
+          `&start.gte=${startIso}&start.lte=${endIso}` +
+          `&limit=20&utc_offset=local`,
+        {
+          headers: {
+            Authorization: `Bearer ${PREDICTHQ_API_KEY}`,
+            Accept: 'application/json',
+          },
+        }
+      );
+      if (!phqResp.ok) throw new Error(`PredictHQ ${phqResp.status}`);
+  
+      const { results } = await phqResp.json();
+  
+      /* 3️⃣  Shape for the React front‑end */
+      const events = results.map(e => ({
+        id: e.id,
+        name: e.title,
+        description: e.description || '',
+        start: e.start,      // already local
+        end: e.end,
+        category: e.category,
+        venue: {
+          name:  e.entities?.[0]?.name || 'TBD',
+          address: e.entities?.[0]?.formatted_address || 'TBD',
+        },
+        phq_attendance: e.phq_attendance,
+        url: e.url || null,
+        cityDisplay: display_name,
+      }));
+  
+      res.json({ success: true, events });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'PredictHQ fetch failed', details: err.message });
+    }
+  });
+
 app.listen(port, () => {
   console.log(`Server listening at http://localhost:${port}`);
 }); 

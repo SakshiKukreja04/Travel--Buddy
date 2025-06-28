@@ -375,3 +375,140 @@ section.itinerarySection {
   font-weight: 600;
   color: #2e3a59;
 }
+
+/* PredictHQ Events Styles */
+.eventsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.eventCard {
+  background: #f8faff;
+  border: 1px solid #e1e8f0;
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.eventCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  border-color: #9ac2f6;
+}
+
+.eventHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.eventIcon {
+  font-size: 1.5rem;
+  background: #e3f0ff;
+  padding: 0.5rem;
+  border-radius: 8px;
+  min-width: 40px;
+  text-align: center;
+}
+
+.eventTitle {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2d3a4a;
+  flex: 1;
+}
+
+.eventTitle a {
+  color: #2d3a4a;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.eventTitle a:hover {
+  color: #007bff;
+  text-decoration: underline;
+}
+
+.eventDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.eventDate,
+.eventVenue,
+.eventAddress,
+.eventAttendance {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #555;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.eventDescription {
+  margin: 0.75rem 0 0 0;
+  font-size: 0.9rem;
+  color: #666;
+  line-height: 1.4;
+  font-style: italic;
+}
+
+.eventCategory {
+  display: inline-block;
+  background: #007bff;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 0.5rem;
+  align-self: flex-start;
+}
+
+/* Responsive design for events grid */
+@media (max-width: 768px) {
+  .eventsGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .eventCard {
+    padding: 1rem;
+  }
+  
+  .eventHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .eventIcon {
+    align-self: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .eventCard {
+    padding: 0.75rem;
+  }
+  
+  .eventTitle {
+    font-size: 1rem;
+  }
+  
+  .eventDate,
+  .eventVenue,
+  .eventAddress,
+  .eventAttendance {
+    font-size: 0.85rem;
+  }
+}
