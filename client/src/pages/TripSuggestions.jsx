@@ -41,27 +41,33 @@ const TripSuggestions = () => {
 
     setSavingTrip(true);
     try {
+      const requestBody = {
+        userId: user.uid,
+        city,
+        checkIn: checkin,
+        checkOut: checkout,
+        preference,
+        budget,
+        suggestions
+      };
+      
+      console.log('Sending saveTrip request:', requestBody);
+      
       const response = await fetch('http://localhost:3001/api/saveTrip', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          userId: user.uid,
-          city,
-          checkIn: checkin,
-          checkOut: checkout,
-          preference,
-          budget,
-          suggestions
-        }),
+        body: JSON.stringify(requestBody),
       });
 
       if (response.ok) {
+        const result = await response.json();
         setTripSaved(true);
-        console.log('Trip saved successfully');
+        console.log('Trip saved successfully:', result);
       } else {
-        console.error('Failed to save trip');
+        const errorData = await response.json();
+        console.error('Failed to save trip:', response.status, errorData);
       }
     } catch (error) {
       console.error('Error saving trip:', error);

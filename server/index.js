@@ -12,12 +12,9 @@ const app = express();
 const port = 3001;
 
 // MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/travel-buddy', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => console.log('Connected to MongoDB'))
-.catch(err => console.error('MongoDB connection error:', err));
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log("✅ Connected to MongoDB Atlas"))
+  .catch((err) => console.error("❌ MongoDB connection error:", err));
 
 app.use(cors());
 app.use(express.json());
@@ -146,8 +143,19 @@ app.listen(port, () => {
 app.post('/api/saveTrip', async (req, res) => {
   try {
     const { userId, city, checkIn, checkOut, preference, budget, suggestions } = req.body;
-    
+
+    console.log('Sending to /api/saveTrip:', { userId, city, checkIn, checkOut, preference, budget, suggestions });
+
     if (!userId || !city || !checkIn || !checkOut || !preference || !budget || !suggestions) {
+      console.log('Missing required fields:', {
+        userId: !!userId,
+        city: !!city,
+        checkIn: !!checkIn,
+        checkOut: !!checkOut,
+        preference: !!preference,
+        budget: !!budget,
+        suggestions: !!suggestions
+      });
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
@@ -157,35 +165,42 @@ app.post('/api/saveTrip', async (req, res) => {
       checkIn,
       checkOut,
       preference,
-      budget,
+      budget: Number(budget),
       suggestions
     });
 
     const savedTrip = await newTrip.save();
+    console.log("✅ Trip saved:", savedTrip._id);
     res.status(201).json({ success: true, trip: savedTrip });
+
   } catch (error) {
-    console.error('Error saving trip:', error);
-    res.status(500).json({ error: 'Failed to save trip' });
+    console.error("❌ Error in saveTrip:", error);
+    res.status(500).json({ error: 'Failed to save trip', details: error.message });
   }
 });
 
 // Get all past trips for a user
 app.get('/api/getPastTrips/:userId', async (req, res) => {
+  console.log('--- getPastTrips endpoint hit ---');
   try {
+    console.log('Request params:', req.params);
     const { userId } = req.params;
-    
+
     if (!userId) {
+      console.log('User ID is missing!');
       return res.status(400).json({ error: 'User ID is required' });
     }
 
+    console.log('Querying PastTrip for userId:', userId);
     const trips = await PastTrip.find({ userId })
-      .sort({ createdAt: -1 }) // Most recent first
-      .limit(20); // Limit to last 20 trips
+      .sort({ createdAt: -1 })
+      .limit(20);
 
+    console.log('Trips found:', trips.length);
     res.json({ success: true, trips });
   } catch (error) {
     console.error('Error fetching past trips:', error);
-    res.status(500).json({ error: 'Failed to fetch past trips' });
+    res.status(500).json({ error: 'Failed to fetch past trips', details: error.message || error.toString() });
   }
 });
 

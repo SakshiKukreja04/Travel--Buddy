@@ -86,26 +86,23 @@ const PlanTrip = () => {
             </div>
             <div className={styles.preferenceRow}>
               <span>Travel Preference</span>
-              <label className={styles.radioLabel}>
-                <input
-                  type="radio"
-                  name="preference"
-                  value="relaxation"
-                  checked={preference === 'relaxation'}
-                  onChange={() => setPreference('relaxation')}
-                />
-                Relaxation
-              </label>
-              <label className={styles.radioLabel}>
-                <input
-                  type="radio"
-                  name="preference"
-                  value="adventurous"
-                  checked={preference === 'adventurous'}
-                  onChange={() => setPreference('adventurous')}
-                />
-                Adventurous
-              </label>
+              <select
+                id="preference"
+                name="preference"
+                value={preference}
+                onChange={e => setPreference(e.target.value)}
+                className={styles.input}
+                required
+              >
+                <option value="">Select a preference</option>
+                <option value="adventure">Adventure</option>
+                <option value="culture">Culture</option>
+                <option value="nature">Nature</option>
+                <option value="food">Food</option>
+                <option value="history">History</option>
+                <option value="shopping">Shopping</option>
+                <option value="relaxation">Relaxation</option>
+              </select>
             </div>
             <div className={styles.budgetSection}>
               <span>Budget Range</span>
