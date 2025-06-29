@@ -9,7 +9,7 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
 const TripSuggestions = () => {
-  const { tripDetails } = useUser();
+  const { tripDetails, user } = useUser();
   const pageRef = useRef(null);
   const [weather, setWeather] = useState([]);
   const [loadingWeather, setLoadingWeather] = useState(true);
@@ -23,11 +23,52 @@ const TripSuggestions = () => {
   const [loadingPhq, setLoadingPhq] = useState(false);
   const [phqErr, setPhqErr] = useState(null);
 
+  const [savingTrip, setSavingTrip] = useState(false);
+  const [tripSaved, setTripSaved] = useState(false);
+
   const city = tripDetails.city || '';
   const checkin = tripDetails.checkin || '';
   const checkout = tripDetails.checkout || '';
   const preference = tripDetails.preference || '';
   const budget = tripDetails.budget || 10000;
+
+  // Function to save trip to MongoDB
+  const saveTrip = async (suggestions) => {
+    if (!user?.uid) {
+      console.log('No user logged in, skipping trip save');
+      return;
+    }
+
+    setSavingTrip(true);
+    try {
+      const response = await fetch('http://localhost:3001/api/saveTrip', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user.uid,
+          city,
+          checkIn: checkin,
+          checkOut: checkout,
+          preference,
+          budget,
+          suggestions
+        }),
+      });
+
+      if (response.ok) {
+        setTripSaved(true);
+        console.log('Trip saved successfully');
+      } else {
+        console.error('Failed to save trip');
+      }
+    } catch (error) {
+      console.error('Error saving trip:', error);
+    } finally {
+      setSavingTrip(false);
+    }
+  };
 
   useEffect(() => {
     const fetchWeather = async () => {
@@ -79,6 +120,8 @@ const TripSuggestions = () => {
     setLoadingDeepSeek(true);
     setDeepSeekError(null);
     setDeepSeekResult(null);
+    setTripSaved(false);
+    
     getTripSuggestions({ city, checkIn: checkin, checkOut: checkout, preference, budget })
       .then(result => {
         let parsed = null;
@@ -95,11 +138,17 @@ const TripSuggestions = () => {
               return;
             }
             setDeepSeekResult(parsed);
+            // Save trip after successful parsing
+            saveTrip(parsed);
           } else {
             setDeepSeekResult(result);
+            // Save trip even if it's a string response
+            saveTrip(result);
           }
         } else {
           setDeepSeekResult(result);
+          // Save trip after successful response
+          saveTrip(result);
         }
       })
       .catch(err => setDeepSeekError(err.message))
@@ -194,6 +243,31 @@ const TripSuggestions = () => {
               <p style={{ color: 'red' }}>{deepSeekError}</p>
             ) : deepSeekResult && typeof deepSeekResult === 'object' ? (
               <>
+                {savingTrip && (
+                  <div style={{ 
+                    background: '#e3f2fd', 
+                    padding: '0.5rem', 
+                    borderRadius: '4px', 
+                    marginBottom: '1rem',
+                    color: '#1976d2',
+                    fontSize: '0.9rem'
+                  }}>
+                    💾 Saving trip to your profile...
+                  </div>
+                )}
+                {tripSaved && (
+                  <div style={{ 
+                    background: '#e8f5e8', 
+                    padding: '0.5rem', 
+                    borderRadius: '4px', 
+                    marginBottom: '1rem',
+                    color: '#2e7d32',
+                    fontSize: '0.9rem'
+                  }}>
+                    ✅ Trip saved to your profile!
+                  </div>
+                )}
+                
                 {deepSeekResult.hotel && (
                   <section>
                     <h3>Hotel</h3>

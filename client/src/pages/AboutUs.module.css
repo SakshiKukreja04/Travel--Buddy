@@ -1,0 +1,28 @@
+.aboutContainer {
+  max-width: 700px;
+  margin: 3rem auto;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 16px #0001;
+  padding: 2.5rem 2rem;
+  text-align: left;
+
+  
+}
+
+.aboutHeading {
+  font-size: 2.2rem;
+  margin-bottom: 1rem;
+  color: #6B5B95;
+}
+
+.aboutParagraph {
+  font-size: 1.15rem;
+  color: #444;
+  margin-bottom: 1.5rem;
+}
+
+.aboutParagraphSecondary {
+  font-size: 1.05rem;
+  color: #555;
+} 
