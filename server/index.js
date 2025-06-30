@@ -43,7 +43,11 @@ console.log('Loaded OpenRouter API Key:', process.env.OPENROUTER_API_KEY ? 'YES'
 console.log('Using OpenRouter API Key:', process.env.OPENROUTER_API_KEY?.slice(0, 8));
 app.post('/api/deepseek-trip', async (req, res) => {
   const { city, checkin, checkout, preference, budget } = req.body;
-  const prompt = `You are a smart travel planner.\n\nPlan a 5-day budget-friendly trip to ${city} for a traveler who prefers ${preference} experiences.\nThe stay is from ${checkin} to ${checkout}. The total budget is ₹${budget}.\n\nIf the location is a state (like Goa), pick a popular city or region within it.\nIf the city is not well-known, generate a sample itinerary using general travel knowledge.\n\nInclude:\n\nHotel suggestions (max ₹8,000 total for 4 nights). For the recommended hotel, provide a 'features' array with at least 3 features (e.g., free WiFi, breakfast included, central location, etc.).\n\nMeal suggestions (not day-wise): For each meal type (breakfast, lunch, dinner), reply as an object with keys: cuisineType, famousDish, minCost (in INR), and a 'recommendedRestaurants' array with at least 3 famous restaurant names for that meal.\n\nDay-wise itinerary: Use the check-in date as Day 1, and increment each day up to the check-out date, labeling each day with the actual date (e.g., 'Monday, 2024-06-10'). For each place/activity in the itinerary, include a 'minTransportCost' field (in INR) indicating the minimum local transport cost to reach that place.\n\nEstimated daily transport cost.\n\nA packing list (as an array of items) based on the weather forecast for the trip (e.g., if winter: warm clothes, if rainy: umbrella, if sunny: sunscreen, etc.).\n\nEnsure all costs stay within ₹${budget}.\n\nReply only in valid JSON format with keys:\n\nhotel (with features array)\nmeals (with cuisineType, famousDish, minCost, and recommendedRestaurants for each meal type)\nitinerary (with each day labeled by actual date, and each place/activity including minTransportCost)\nestimatedTotal\npackingList (array of items based on weather)\n\nExample JSON:\n{\n  \"hotel\": {\n    \"name\": \"Hotel Name\",\n    \"type\": \"Budget Hotel\",\n    \"totalCost\": 5000,\n    \"features\": [\"Free WiFi\", \"Breakfast included\", \"Central location\"]\n  },\n  \"meals\": {\n    \"breakfast\": {\n      \"cuisineType\": \"Continental\",\n      \"famousDish\": \"Pancakes\",\n      \"minCost\": 150,\n      \"recommendedRestaurants\": [\"Cafe XYZ\", \"Morning Glory\", \"Sunrise Diner\"]\n    },\n    \"lunch\": {\n      \"cuisineType\": \"Indian\",\n      \"famousDish\": \"Thali\",\n      \"minCost\": 250,\n      \"recommendedRestaurants\": [\"ABC Restaurant\", \"Spice Hub\", \"Curry House\"]\n    },\n    \"dinner\": {\n      \"cuisineType\": \"Italian\",\n      \"famousDish\": \"Pizza\",\n      \"minCost\": 300,\n      \"recommendedRestaurants\": [\"Pizzeria 123\", \"La Dolce Vita\", \"Roma Kitchen\"]\n    }\n  },\n  \"itinerary\": {\n    \"Monday, 2024-06-10\": {\n      \"Morning\": {\"place\": \"Beach\", \"minTransportCost\": 100},\n      \"Afternoon\": {\"place\": \"Museum\", \"minTransportCost\": 80}\n    }\n  },\n  \"estimatedTotal\": {\"breakdown\": {\"hotel\": 5000, \"meals\": 2100}, \"total\": 8000},\n  \"packingList\": [\"Warm clothes\", \"Umbrella\", \"Sunscreen\"]\n}\n\nDo not include any code block formatting (such as triple backticks) or any extra explanation. Only output the JSON object as the response.`;
+  
+  // Format preferences for the prompt
+  const preferenceText = Array.isArray(preference) ? preference.join(', ') : preference;
+
+  const prompt = `You are a smart travel planner.\\n\\nPlan a 5-day budget-friendly trip to ${city} for a traveler who prefers ${preferenceText} experiences.\\nThe stay is from ${checkin} to ${checkout}. The total budget is ₹${budget}.\\n\\nIf the location is a state (like Goa), pick a popular city or region within it.\\nIf the city is not well-known, generate a sample itinerary using general travel knowledge.\\n\\nInclude:\\n\\nHotel suggestions (max ₹8,000 total for 4 nights). For the recommended hotel, provide a 'features' array with at least 3 features (e.g., free WiFi, breakfast included, central location, etc.).\\n\\nMeal suggestions (not day-wise): For each meal type (breakfast, lunch, dinner), reply as an object with keys: cuisineType, famousDish, minCost (in INR), and a 'recommendedRestaurants' array with at least 3 famous restaurant names for that meal.\\n\\nDay-wise itinerary: Use the check-in date as Day 1, and increment each day up to the check-out date, labeling each day with the actual date (e.g., 'Monday, 2024-06-10'). For each place/activity in the itinerary, include a 'minTransportCost' field (in INR) indicating the minimum local transport cost to reach that place.\\n\\nEstimated daily transport cost.\\n\\nA packing list (as an array of items) based on the weather forecast for the trip (e.g., if winter: warm clothes, if rainy: umbrella, if sunny: sunscreen, etc.).\\n\\nEnsure all costs stay within ₹${budget}.\\n\\nReply only in valid JSON format with keys:\\n\\nhotel (with features array)\\nmeals (with cuisineType, famousDish, minCost, and recommendedRestaurants for each meal type)\\nitinerary (with each day labeled by actual date, and each place/activity including minTransportCost)\\nestimatedTotal\\npackingList (array of items based on weather)\\n\\nExample JSON:\\n{\\n  "hotel": {\\n    "name": "Hotel Name",\\n    "type": "Budget Hotel",\\n    "totalCost": 5000,\\n    "features": ["Free WiFi", "Breakfast included", "Central location"]\\n  },\\n  "meals": {\\n    "breakfast": {\\n      "cuisineType": "Continental",\\n      "famousDish": "Pancakes",\\n      "minCost": 150,\\n      "recommendedRestaurants": ["Cafe XYZ", "Morning Glory", "Sunrise Diner"]\\n    },\\n    "lunch": {\\n      "cuisineType": "Indian",\\n      "famousDish": "Thali",\\n      "minCost": 250,\\n      "recommendedRestaurants": ["ABC Restaurant", "Spice Hub", "Curry House"]\\n    },\\n    "dinner": {\\n      "cuisineType": "Italian",\\n      "famousDish": "Pizza",\\n      "minCost": 300,\\n      "recommendedRestaurants": ["Pizzeria 123", "La Dolce Vita", "Roma Kitchen"]\\n    }\\n  },\\n  "itinerary": {\\n    "Monday, 2024-06-10": {\\n      "Morning": {"place": "Beach", "minTransportCost": 100},\\n      "Afternoon": {"place": "Museum", "minTransportCost": 80}\\n    }\\n  },\\n  "estimatedTotal": {"breakdown": {"hotel": 5000, "meals": 2100}, "total": 8000},\\n  "packingList": ["Warm clothes", "Umbrella", "Sunscreen"]\\n}\\n\\nDo not include any code block formatting (such as triple backticks) or any extra explanation. Only output the JSON object as the response.`;
 
   try {
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -164,7 +168,7 @@ app.post('/api/saveTrip', async (req, res) => {
       city,
       checkIn,
       checkOut,
-      preference,
+      preference: Array.isArray(preference) ? preference : [preference],
       budget: Number(budget),
       suggestions
     });
@@ -223,6 +227,50 @@ app.delete('/api/deleteTrip/:tripId', async (req, res) => {
   } catch (error) {
     console.error('Error deleting trip:', error);
     res.status(500).json({ error: 'Failed to delete trip' });
+  }
+});
+
+// Hotel Image Fetch Route
+app.post('/api/fetchHotelImage', async (req, res) => {
+  const { hotelName, city } = req.body;
+  const query = city ? `${hotelName}, ${city}` : hotelName;
+
+  try {
+    const response = await fetch(
+      `https://www.googleapis.com/customsearch/v1?q=${encodeURIComponent(query)}&searchType=image&num=1&key=${process.env.GOOGLE_API_KEY}&cx=${process.env.GOOGLE_CX}`
+    );
+
+    const data = await response.json();
+    const imageUrl = data.items?.[0]?.link;
+
+    if (imageUrl) {
+      res.json({ success: true, imageUrl });
+    } else {
+      res.status(404).json({ success: false, error: 'Image not found' });
+    }
+  } catch (err) {
+    console.error('Image fetch error:', err.message);
+    res.status(500).json({ success: false, error: 'Image fetch failed' });
+  }
+});
+
+app.post('/api/fetchMealImage', async (req, res) => {
+  const { mealName } = req.body;
+  if (!mealName) return res.status(400).json({ success: false, error: 'mealName is required' });
+  try {
+    const response = await fetch(
+      `https://www.googleapis.com/customsearch/v1?key=${process.env.GOOGLE_API_KEY}&cx=${process.env.GOOGLE_CX}&q=${encodeURIComponent(mealName)}&searchType=image&num=1`
+    );
+    const data = await response.json();
+    const imageUrl = data.items?.[0]?.link;
+    if (imageUrl) {
+      res.json({ success: true, imageUrl });
+    } else {
+      res.status(404).json({ success: false, error: 'Image not found' });
+    }
+  } catch (err) {
+    console.error('Meal image fetch error:', err.message);
+    res.status(500).json({ success: false, error: 'Image fetch failed' });
   }
 }); 
 

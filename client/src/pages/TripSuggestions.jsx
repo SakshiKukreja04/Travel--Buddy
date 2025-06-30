@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styles from '../styles/TripSuggestions.module.css';
-import { FaHotel, FaCloudSun, FaShoppingBag, FaUtensils, FaCalendarAlt, FaRupeeSign, FaDownload } from 'react-icons/fa';
+import { FaHotel, FaCloudSun, FaShoppingBag, FaUtensils, FaCalendarAlt, FaRupeeSign, FaDownload, FaSuitcase, FaCheckCircle } from 'react-icons/fa';
 import Footer from '../components/Footer/Footer';
 import { useUser } from '../UserContext';
 import { getTripSuggestions } from '../utils/tripPlannerAPI';
@@ -25,6 +25,10 @@ const TripSuggestions = () => {
 
   const [savingTrip, setSavingTrip] = useState(false);
   const [tripSaved, setTripSaved] = useState(false);
+
+  const [hotelImage, setHotelImage] = useState('');
+
+  const [mealImages, setMealImages] = useState({});
 
   const city = tripDetails.city || '';
   const checkin = tripDetails.checkin || '';
@@ -73,6 +77,36 @@ const TripSuggestions = () => {
       console.error('Error saving trip:', error);
     } finally {
       setSavingTrip(false);
+    }
+  };
+
+  const fetchHotelImage = async (hotelName, city) => {
+    try {
+      const response = await fetch('http://localhost:3001/api/fetchHotelImage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ hotelName, city }),
+      });
+      const data = await response.json();
+      return data.imageUrl || '';
+    } catch (err) {
+      console.error('Error fetching hotel image:', err.message);
+      return '';
+    }
+  };
+
+  const fetchMealImage = async (mealName) => {
+    try {
+      const response = await fetch('http://localhost:3001/api/fetchMealImage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mealName }),
+      });
+      const data = await response.json();
+      return data.imageUrl || '';
+    } catch (err) {
+      console.error('Error fetching meal image:', err.message);
+      return '';
     }
   };
 
@@ -127,9 +161,10 @@ const TripSuggestions = () => {
     setDeepSeekError(null);
     setDeepSeekResult(null);
     setTripSaved(false);
+    setHotelImage('');
     
     getTripSuggestions({ city, checkIn: checkin, checkOut: checkout, preference, budget })
-      .then(result => {
+      .then(async result => {
         let parsed = null;
         if (typeof result === 'string') {
           // Try to extract JSON from within markdown or extra text
@@ -156,6 +191,12 @@ const TripSuggestions = () => {
           // Save trip after successful response
           saveTrip(result);
         }
+        // Fetch hotel image if hotel name exists
+        const hotelName = parsed?.hotel?.name || result?.hotel?.name;
+        if (hotelName) {
+          const img = await fetchHotelImage(hotelName, city);
+          setHotelImage(img);
+        }
       })
       .catch(err => setDeepSeekError(err.message))
       .finally(() => setLoadingDeepSeek(false));
@@ -171,6 +212,21 @@ const TripSuggestions = () => {
       .catch(err => setPhqErr(err.message))
       .finally(() => setLoadingPhq(false));
   }, [city, checkin, checkout]);
+
+  useEffect(() => {
+    if (!deepSeekResult?.meals) return;
+    const fetchAllMealImages = async () => {
+      const entries = Object.entries(deepSeekResult.meals);
+      const images = {};
+      for (const [mealType, mealInfo] of entries) {
+        if (mealInfo.famousDish) {
+          images[mealType] = await fetchMealImage(mealInfo.famousDish);
+        }
+      }
+      setMealImages(images);
+    };
+    fetchAllMealImages();
+  }, [deepSeekResult?.meals]);
 
   const weatherIconMap = {
     Clear: '☀️', Clouds: '⛅', Rain: '🌧️', Drizzle: '��️', Thunderstorm: '⛈️',
@@ -277,6 +333,13 @@ const TripSuggestions = () => {
                 {deepSeekResult.hotel && (
                   <section>
                     <h3>Hotel</h3>
+                    {hotelImage && (
+                      <img
+                        src={hotelImage}
+                        alt={`Image of ${deepSeekResult.hotel?.name}`}
+                        className={styles.hotelImage}
+                      />
+                    )}
                     <p><b>{deepSeekResult.hotel.name}</b></p>
                     <p>{deepSeekResult.hotel.type}</p>
                     <p><b>Cost:</b> {deepSeekResult.hotel.totalCost}</p>
@@ -297,16 +360,21 @@ const TripSuggestions = () => {
                   <section>
                     <h3>Meals</h3>
                     {Object.entries(deepSeekResult.meals).map(([mealType, mealInfo]) => (
-                      <div key={mealType} style={{ marginBottom: '0.5em' }}>
-                        <b>{mealType.charAt(0).toUpperCase() + mealType.slice(1)}:</b><br/>
-                        {mealInfo.cuisineType && <span><b>Cuisine:</b> {mealInfo.cuisineType}<br/></span>}
-                        {mealInfo.famousDish && <span><b>Famous Dish:</b> {mealInfo.famousDish}<br/></span>}
-                        {mealInfo.minCost && <span><b>Min Cost:</b> ₹{mealInfo.minCost}<br/></span>}
-                        {mealInfo.suggestion && <span><b>Suggestion:</b> {mealInfo.suggestion}<br/></span>}
-                        {mealInfo.costPerDay && <span><b>Cost/Day:</b> {mealInfo.costPerDay}<br/></span>}
-                        {mealInfo.recommendedSpots && mealInfo.recommendedSpots.length > 0 && (
-                          <span><i>Recommended: {mealInfo.recommendedSpots.join(', ')}</i></span>
+                      <div key={mealType} style={{ marginBottom: '0.5em', display: 'flex', alignItems: 'flex-start', gap: '1.2rem' }}>
+                        {mealInfo.famousDish && mealImages[mealType] && (
+                          <img src={mealImages[mealType]} alt={mealInfo.famousDish} style={{ width: '90px', height: '90px', objectFit: 'cover', borderRadius: '12px', boxShadow: '0 2px 8px #0001' }} />
                         )}
+                        <div>
+                          <b>{mealType.charAt(0).toUpperCase() + mealType.slice(1)}:</b><br/>
+                          {mealInfo.cuisineType && <span><b>Cuisine:</b> {mealInfo.cuisineType}<br/></span>}
+                          {mealInfo.famousDish && <span><b>Famous Dish:</b> {mealInfo.famousDish}<br/></span>}
+                          {mealInfo.minCost && <span><b>Min Cost:</b> ₹{mealInfo.minCost}<br/></span>}
+                          {mealInfo.suggestion && <span><b>Suggestion:</b> {mealInfo.suggestion}<br/></span>}
+                          {mealInfo.costPerDay && <span><b>Cost/Day:</b> {mealInfo.costPerDay}<br/></span>}
+                          {mealInfo.recommendedSpots && mealInfo.recommendedSpots.length > 0 && (
+                            <span><i>Recommended: {mealInfo.recommendedSpots.join(', ')}</i></span>
+                          )}
+                        </div>
                       </div>
                     ))}
                   </section>
@@ -314,51 +382,65 @@ const TripSuggestions = () => {
 
                 {deepSeekResult.itinerary && (
                   <section className={styles.itinerarySection}>
-                  {Object.entries(deepSeekResult.itinerary).map(([dayKey, details]) => (
-                    <div className={styles.itineraryDayCard} key={dayKey}>
-                      <h4>{dayKey}</h4>
-                      <ul>
-                        {Object.entries(details).map(([k, v]) => (
-                          <li key={k}>
-                            <b>{k}:</b> {v && typeof v === 'object' && v.place ? (
-                              <>
-                                {v.place} {v.minTransportCost !== undefined && (
-                                  <span style={{ color: '#007bff' }}> (Min Transport: ₹{v.minTransportCost})</span>
+                    <h3><FaCalendarAlt /> Daywise Itinerary</h3>
+                    <div className={styles.itineraryGrid}>
+                      {Object.entries(deepSeekResult.itinerary).map(([dayKey, details]) => (
+                        <div className={styles.itineraryDayCard} key={dayKey}>
+                          <h4>{dayKey}</h4>
+                          <ul>
+                            {Object.entries(details).map(([k, v]) => (
+                              <li key={k}>
+                                <b>{k}:</b> {v && typeof v === 'object' && v.place ? (
+                                  <>
+                                    {v.place} {v.minTransportCost !== undefined && (
+                                      <span style={{ color: '#007bff' }}> (Min Transport: ₹{v.minTransportCost})</span>
+                                    )}
+                                  </>
+                                ) : (
+                                  v
                                 )}
-                              </>
-                            ) : (
-                              v
-                            )}
-                          </li>
-                        ))}
-                      </ul>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </section>
-                
-                
+                  </section>
                 )}
 
                 {deepSeekResult.estimatedTotal && (
                   <section>
                     <h3>Estimated Budget</h3>
-                    <ul>
-                      {Object.entries(deepSeekResult.estimatedTotal.breakdown || {}).map(([k, v]) => (
-                        <li key={k}><b>{k}:</b> {v}</li>
-                      ))}
-                    </ul>
-                    <p><b>Total:</b> {deepSeekResult.estimatedTotal.total}</p>
+                    <table className={styles.budgetTable}>
+                      <tbody>
+                        {Object.entries(deepSeekResult.estimatedTotal.breakdown || {}).map(([k, v]) => (
+                          <tr key={k}>
+                            <td>{k.charAt(0).toUpperCase() + k.slice(1)}</td>
+                            <td>₹{v}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                      <tfoot>
+                        <tr>
+                          <td><strong>Total</strong></td>
+                          <td><strong>₹{deepSeekResult.estimatedTotal.total}</strong></td>
+                        </tr>
+                      </tfoot>
+                    </table>
                   </section>
                 )}
 
                 {deepSeekResult.packingList && Array.isArray(deepSeekResult.packingList) && deepSeekResult.packingList.length > 0 && (
                   <section>
-                    <h3>Packing List</h3>
-                    <ul>
+                    <h3><FaSuitcase /> Packing List</h3>
+                    <div className={styles.packingList}>
                       {deepSeekResult.packingList.map((item, idx) => (
-                        <li key={idx}>{item}</li>
+                        <div key={idx} className={styles.packingListItem}>
+                          <FaCheckCircle className={styles.packingIcon} />
+                          <span>{item}</span>
+                        </div>
                       ))}
-                    </ul>
+                    </div>
                   </section>
                 )}
               </>
@@ -379,8 +461,9 @@ const TripSuggestions = () => {
                 <ul className={styles.weatherList}>
                   {weather.map(day => (
                     <li key={day.day}>
-                      <span>{day.day}</span> <span>{weatherIconMap[day.icon] || '❓'} {day.temp}</span>
-                      <span style={{ marginLeft: '1em', color: '#555', fontStyle: 'italic' }}>{day.description && `(${day.description.charAt(0).toUpperCase() + day.description.slice(1)})`}</span>
+                      <span className={styles.weatherDay}>{day.day}</span>
+                      <span className={styles.weatherTemp}>{weatherIconMap[day.icon] || '❓'} {day.temp}</span>
+                      <span className={styles.weatherDesc}>{day.description}</span>
                     </li>
                   ))}
                 </ul>

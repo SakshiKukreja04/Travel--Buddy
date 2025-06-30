@@ -4,6 +4,9 @@
     background-color: #4A4E69; /* A blue-grey shade from the image */
     color: white;
 }
+.cta:hover{
+    background: rgb(12, 190, 249);
+}
 
 .title {
     font-size: 2.5rem;
@@ -13,6 +16,7 @@
 .subtitle {
     font-size: 1.2rem;
     margin-bottom: 2rem;
+    color: #ffc107;
 }
 
 .ctaBtn {

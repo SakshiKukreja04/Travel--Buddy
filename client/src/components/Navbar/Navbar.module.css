@@ -17,10 +17,12 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    font-weight: bold;
 }
 
 .logoImg {
-    height: 40px;
+    height: 80px;
+    margin: -10px 0;
 }
 
 .navLinks {
@@ -93,7 +95,7 @@
 }
 
 .profileBtn {
-    background-color: #eee;
+    background-color: #ffc107;
     color: #333;
     border: 1px solid #ccc;
     margin-right: 0.5rem;

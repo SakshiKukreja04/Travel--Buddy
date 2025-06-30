@@ -5,7 +5,7 @@ const pastTripSchema = new mongoose.Schema({
   city: String,
   checkIn: String,
   checkOut: String,
-  preference: String,
+  preference: [String],
   budget: Number,
   suggestions: Object
 }, { timestamps: true });

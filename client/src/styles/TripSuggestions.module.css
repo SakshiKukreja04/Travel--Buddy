@@ -5,7 +5,7 @@
 }
 
 .mainTitle {
-  font-size: 2.5rem;
+  font-size: 2rem;
   color: #333;
   margin-bottom: 0.5rem;
 }
@@ -38,10 +38,18 @@
 }
 
 .hotelImage {
-  width: 120px;
-  height: 120px;
-  border-radius: 12px;
+  display: block;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto 1.2rem auto;
+  border-radius: 16px;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.10);
   object-fit: cover;
+  transition: box-shadow 0.2s;
+}
+
+.hotelImage:hover {
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
 }
 
 .hotelInfo {
@@ -77,6 +85,7 @@
 .weatherList li {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   padding: 0.5rem 0;
   border-bottom: 1px solid #eee;
 }
@@ -84,10 +93,59 @@
   border-bottom: none;
 }
 
+.weatherDay {
+  flex: 1;
+  font-weight: 500;
+}
+
+.weatherTemp {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+}
+
+.weatherDesc {
+  flex: 1;
+  text-align: right;
+  color: #555;
+  font-style: italic;
+}
+
 .packingGrid {
   display: flex;
   gap: 2rem;
   justify-content: space-between;
+}
+
+.packingList {
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.packingListItem {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #e9ecef;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.packingListItem:last-child {
+  border-bottom: none;
+}
+
+.packingListItem:hover {
+  background-color: #e9ecef;
+}
+
+.packingIcon {
+  color: #28a745;
+  font-size: 1.2rem;
 }
 
 .packingCol {
@@ -109,12 +167,13 @@
 
 .itineraryGrid {
   display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  flex-wrap: wrap;
+  gap: 2rem;
+  margin-top: 1.5rem;
 }
 
 .itineraryCard {
-  border: 1.5px solid #b3c6e0;
+  border: 2px solid #b3c6e0;
   border-radius: 10px;
   background: #f7faff;
   padding: 1rem;
@@ -129,7 +188,7 @@
 }
 
 .budgetTable th, .budgetTable td {
-  border: 1px solid #e0e0e0;
+  border: 2px solid lightblue;
   padding: 0.7rem 1rem;
   text-align: left;
 }
@@ -247,133 +306,56 @@ section li {
 }
 section.itinerarySection {
   margin-top: 2.5rem;
-  padding: 2rem;
-  background-color: #f8fbff;
-  border: 1px solid #d6e9ff;
-  border-left: 6px solid #3366cc;
+  margin-bottom: 2.5rem;
+}
+
+.itineraryDayCard {
+  background: #fff;
+  border: 2px solid #b3c6e0;
   border-radius: 16px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
-}
-
-.itineraryDayCard {
-  background: #ffffff;
-  border: 1px solid #dfeeff;
-  border-radius: 12px;
-  padding: 1rem 1.2rem;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  padding: 2rem 1.5rem;
+  min-width: 320px;
+  max-width: 370px;
+  flex: 1 1 320px;
   margin-bottom: 1rem;
-  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.04);
-  transition: transform 0.2s ease;
+  transition: transform 0.18s, box-shadow 0.18s;
 }
 
 .itineraryDayCard:hover {
-  transform: translateY(-2px);
+  transform: translateY(-6px) scale(1.03);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.10);
 }
 
 .itineraryDayCard h4 {
-  margin: 0 0 0.6rem 0;
-  font-size: 1.2rem;
-  color: #2a4b7c;
-  border-bottom: 1px solid #e0eaff;
-  padding-bottom: 0.3rem;
-}
-
-.itineraryDayCard ul {
-  list-style: none;
-  padding-left: 1rem;
-}
-
-.itineraryDayCard li {
-  padding: 0.2rem 0;
-  font-size: 0.98rem;
-  color: #333;
-}
-.itinerarySection {
-  margin-top: 2.5rem;
-  display: grid;
-  gap: 1.5rem;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-}
-
-.itineraryDayCard {
-  background-color: #ffffff;
-  border: 1.5px solid #d8eaff;
-  border-radius: 12px;
-  padding: 1.2rem;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.itineraryDayCard:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
-}
-
-.itineraryDayCard h4 {
-  font-size: 1.1rem;
-  margin-bottom: 0.8rem;
-  color: #2c3e70;
-  border-bottom: 1px solid #e2ebff;
-  padding-bottom: 0.4rem;
-}
-
-.itineraryDayCard ul {
-  list-style: none;
-  padding-left: 0;
-  margin: 0;
-}
-
-.itineraryDayCard li {
-  padding: 0.3rem 0;
-  font-size: 0.95rem;
-  color: #333;
-}
-.itinerarySection {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 1.5rem;
-  margin-top: 2rem;
-}
-
-.itineraryDayCard {
-  background: #ffffff;
-  border: 2px solid #d0e2ff;
-  border-radius: 14px;
-  padding: 1.2rem 1.5rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  transition: 0.3s ease-in-out;
-}
-
-.itineraryDayCard:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
-}
-
-.itineraryDayCard h4 {
-  font-size: 1.1rem;
+  font-size: 1.3rem;
   font-weight: 700;
-  margin-bottom: 0.8rem;
-  color: #1c2f51;
-  border-bottom: 1px solid #dce8f9;
-  padding-bottom: 0.4rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #e3eafc;
+  padding-bottom: 0.5rem;
 }
 
 .itineraryDayCard ul {
-  list-style: none;
   padding-left: 0;
   margin: 0;
+  list-style: none;
 }
 
 .itineraryDayCard li {
-  margin-bottom: 0.4rem;
-  font-size: 0.95rem;
-  color: #333;
-  line-height: 1.4;
+  margin-bottom: 0.7rem;
+  color: #222;
+  font-size: 1.05rem;
 }
 
-.itineraryDayCard li b {
-  text-transform: capitalize;
-  font-weight: 600;
-  color: #2e3a59;
+@media (max-width: 900px) {
+  .itineraryGrid {
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+  .itineraryDayCard {
+    min-width: 0;
+    max-width: 100%;
+  }
 }
 
 /* PredictHQ Events Styles */
@@ -511,4 +493,12 @@ section.itinerarySection {
   .eventAttendance {
     font-size: 0.85rem;
   }
+}
+
+.weatherIconTemp {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  font-size: 1.1em;
+  
 }

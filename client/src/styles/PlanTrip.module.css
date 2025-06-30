@@ -194,11 +194,10 @@
   transition: background 0.2s;
 }
 .submitBtn:hover {
-  background: #444;
+  background-color: #e65a00;
 }
 .planeIcon {
-  font-size: 1.2rem;
-  margin-right: 0.3rem;
+  margin-right: 8px;
 }
 .infoText {
   font-size: 0.95rem;
@@ -206,6 +205,45 @@
   margin-top: 1.2rem;
   text-align: center;
 }
+
+.preferenceSection {
+  margin-bottom: 20px;
+}
+
+.preferenceTitle {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: 500;
+  color: #555;
+}
+
+.checkboxGroup {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  background-color: #f9f9f9;
+  border-radius: 20px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  border: 1px solid #ddd;
+}
+
+.checkboxLabel:hover {
+  background-color: #f0f0f0;
+  border-color: #ccc;
+}
+
+.checkboxLabel input[type="checkbox"] {
+  margin-right: 8px;
+  accent-color: #ff6f00;
+}
+
 @media (max-width: 700px) {
   .centerCard {
     max-width: 98vw;

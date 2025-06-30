@@ -11,10 +11,21 @@ const PlanTrip = () => {
   const [destination, setDestination] = useState('');
   const [checkIn, setCheckIn] = useState('');
   const [checkOut, setCheckOut] = useState('');
-  const [preference, setPreference] = useState('relaxation');
+  const [preferences, setPreferences] = useState(['relaxation']);
   const [budget, setBudget] = useState(25000);
   const [minBudget, setMinBudget] = useState(5000);
   const [maxBudget, setMaxBudget] = useState(50000);
+
+  const handlePreferenceChange = (e) => {
+    const { value, checked } = e.target;
+    setPreferences(prev => {
+      if (checked) {
+        return [...prev, value];
+      } else {
+        return prev.filter(item => item !== value);
+      }
+    });
+  };
 
   const handleSlider = (e) => {
     setBudget(Number(e.target.value));
@@ -36,11 +47,16 @@ const PlanTrip = () => {
       city: destination,
       checkin: checkIn,
       checkout: checkOut,
-      preference,
+      preference: preferences,
       budget
     });
     navigate('/results');
   };
+
+  const preferenceOptions = [
+    'adventure', 'culture', 'nature', 'food', 
+    'history', 'shopping', 'relaxation'
+  ];
 
   return (
     <>
@@ -84,25 +100,21 @@ const PlanTrip = () => {
                 />
               </label>
             </div>
-            <div className={styles.preferenceRow}>
-              <span>Travel Preference</span>
-              <select
-                id="preference"
-                name="preference"
-                value={preference}
-                onChange={e => setPreference(e.target.value)}
-                className={styles.input}
-                required
-              >
-                <option value="">Select a preference</option>
-                <option value="adventure">Adventure</option>
-                <option value="culture">Culture</option>
-                <option value="nature">Nature</option>
-                <option value="food">Food</option>
-                <option value="history">History</option>
-                <option value="shopping">Shopping</option>
-                <option value="relaxation">Relaxation</option>
-              </select>
+            <div className={styles.preferenceSection}>
+              <span className={styles.preferenceTitle}>Travel Preferences</span>
+              <div className={styles.checkboxGroup}>
+                {preferenceOptions.map(option => (
+                  <label key={option} className={styles.checkboxLabel}>
+                    <input
+                      type="checkbox"
+                      value={option}
+                      checked={preferences.includes(option)}
+                      onChange={handlePreferenceChange}
+                    />
+                    {option.charAt(0).toUpperCase() + option.slice(1)}
+                  </label>
+                ))}
+              </div>
             </div>
             <div className={styles.budgetSection}>
               <span>Budget Range</span>
