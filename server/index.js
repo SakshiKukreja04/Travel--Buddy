@@ -11,10 +11,10 @@ const PORT = process.env.PORT || 3001;
 
 // CORS setup for Vercel frontend
 const corsOptions = {
-  origin: 'https://travel-buddy-orpin.vercel.app/',
+  origin: 'https://travel-buddy-orpin.vercel.app',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true,
+
 };
 app.use(cors(corsOptions));
 app.use(express.json());
@@ -149,7 +149,8 @@ No extra text, no markdown, just the JSON object as response.`;
   });
 
 app.listen(PORT, () => {
-  console.log(`🚀 Server listening at http://localhost:${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
+
 }); 
 
 /* =========================================================
