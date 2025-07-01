@@ -7,6 +7,7 @@ import { getTripSuggestions } from '../utils/tripPlannerAPI';
 import { fetchPredictHQEvents, getEventCategoryIcon, formatEventDate, getAttendanceLabel } from '../utils/predicthqAPI';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { fetchMealImage as fetchMealImageFromAPI } from '../utils/mealImageAPI';
 
 const TripSuggestions = () => {
   const { tripDetails, user } = useUser();
@@ -91,21 +92,6 @@ const TripSuggestions = () => {
       return data.imageUrl || '';
     } catch (err) {
       console.error('Error fetching hotel image:', err.message);
-      return '';
-    }
-  };
-
-  const fetchMealImage = async (mealName) => {
-    try {
-      const response = await fetch('http://localhost:3001/api/fetchMealImage', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mealName }),
-      });
-      const data = await response.json();
-      return data.imageUrl || '';
-    } catch (err) {
-      console.error('Error fetching meal image:', err.message);
       return '';
     }
   };
@@ -215,18 +201,17 @@ const TripSuggestions = () => {
 
   useEffect(() => {
     if (!deepSeekResult?.meals) return;
-    const fetchAllMealImages = async () => {
-      const entries = Object.entries(deepSeekResult.meals);
-      const images = {};
-      for (const [mealType, mealInfo] of entries) {
-        if (mealInfo.famousDish) {
-          images[mealType] = await fetchMealImage(mealInfo.famousDish);
-        }
+    const loadImages = async () => {
+      const imgs = {};
+      for (const [mealType, info] of Object.entries(deepSeekResult.meals)) {
+        const q = info.famousDish || info.cuisineType;
+        const img = await fetchMealImageFromAPI(q);
+        if (img) imgs[mealType] = img;
       }
-      setMealImages(images);
+      setMealImages(imgs);
     };
-    fetchAllMealImages();
-  }, [deepSeekResult?.meals]);
+    loadImages();
+  }, [deepSeekResult]);
 
   const weatherIconMap = {
     Clear: '☀️', Clouds: '⛅', Rain: '🌧️', Drizzle: '��️', Thunderstorm: '⛈️',
@@ -330,53 +315,63 @@ const TripSuggestions = () => {
                   </div>
                 )}
                 
-                {deepSeekResult.hotel && (
+                {Array.isArray(deepSeekResult.hotels) && deepSeekResult.hotels.length > 0 && (
                   <section>
-                    <h3>Hotel</h3>
-                    {hotelImage && (
-                      <img
-                        src={hotelImage}
-                        alt={`Image of ${deepSeekResult.hotel?.name}`}
-                        className={styles.hotelImage}
-                      />
-                    )}
-                    <p><b>{deepSeekResult.hotel.name}</b></p>
-                    <p>{deepSeekResult.hotel.type}</p>
-                    <p><b>Cost:</b> {deepSeekResult.hotel.totalCost}</p>
-                    <b>Features:</b>
-                    {Array.isArray(deepSeekResult.hotel.features) && deepSeekResult.hotel.features.length > 0 ? (
-                      <ul>
-                        {deepSeekResult.hotel.features.map((feature, idx) => (
-                          <li key={idx}>{feature}</li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <span> Not specified</span>
-                    )}
+                    <h3>Hotels</h3>
+                    <div className={styles.hotelsRow}>
+                      {deepSeekResult.hotels.map((hotel, idx) => (
+                        <div key={hotel.name + idx} className={styles.hotelCard}>
+                          <p><b>{hotel.name}</b></p>
+                          <p>{hotel.type}</p>
+                          {hotel.location && <p><b>Location:</b> {hotel.location}</p>}
+                          <p><b>Cost:</b> {hotel.totalCost}</p>
+                          <b>Features:</b>
+                          {Array.isArray(hotel.features) && hotel.features.length > 0 ? (
+                            <ul>
+                              {hotel.features.map((feature, fidx) => (
+                                <li key={fidx}>{feature}</li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <span> Not specified</span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   </section>
                 )}
 
                 {deepSeekResult.meals && (
                   <section>
                     <h3>Meals</h3>
-                    {Object.entries(deepSeekResult.meals).map(([mealType, mealInfo]) => (
-                      <div key={mealType} style={{ marginBottom: '0.5em', display: 'flex', alignItems: 'flex-start', gap: '1.2rem' }}>
-                        {mealInfo.famousDish && mealImages[mealType] && (
-                          <img src={mealImages[mealType]} alt={mealInfo.famousDish} style={{ width: '90px', height: '90px', objectFit: 'cover', borderRadius: '12px', boxShadow: '0 2px 8px #0001' }} />
-                        )}
-                        <div>
-                          <b>{mealType.charAt(0).toUpperCase() + mealType.slice(1)}:</b><br/>
-                          {mealInfo.cuisineType && <span><b>Cuisine:</b> {mealInfo.cuisineType}<br/></span>}
-                          {mealInfo.famousDish && <span><b>Famous Dish:</b> {mealInfo.famousDish}<br/></span>}
-                          {mealInfo.minCost && <span><b>Min Cost:</b> ₹{mealInfo.minCost}<br/></span>}
-                          {mealInfo.suggestion && <span><b>Suggestion:</b> {mealInfo.suggestion}<br/></span>}
-                          {mealInfo.costPerDay && <span><b>Cost/Day:</b> {mealInfo.costPerDay}<br/></span>}
-                          {mealInfo.recommendedSpots && mealInfo.recommendedSpots.length > 0 && (
-                            <span><i>Recommended: {mealInfo.recommendedSpots.join(', ')}</i></span>
-                          )}
+                    <div className={styles.mealsColumn}>
+                      {Object.entries(deepSeekResult.meals).map(([mealType, mealInfo]) => (
+                        <div key={mealType} className={styles.mealCard}>
+                          <div className={styles.mealImageWrapper}>
+                            {mealImages[mealType] && (
+                              <img
+                                src={mealImages[mealType]}
+                                alt={mealInfo.famousDish || mealType}
+                                className={styles.mealImage}
+                                onError={e => { e.target.onerror = null; e.target.src = 'https://via.placeholder.com/300x200?text=No+Image'; }}
+                              />
+                            )}
+                            <span className={styles.mealTypeOverlay}>{mealType.charAt(0).toUpperCase() + mealType.slice(1)}</span>
+                          </div>
+                          <div>
+                            <b>{mealType.charAt(0).toUpperCase() + mealType.slice(1)}:</b><br/>
+                            {mealInfo.cuisineType && <span><b>Cuisine:</b> {mealInfo.cuisineType}<br/></span>}
+                            {mealInfo.famousDish && <span><b>Famous Dish:</b> {mealInfo.famousDish}<br/></span>}
+                            {mealInfo.minCost && <span><b>Min Cost:</b> ₹{mealInfo.minCost}<br/></span>}
+                            {mealInfo.suggestion && <span><b>Suggestion:</b> {mealInfo.suggestion}<br/></span>}
+                            {mealInfo.costPerDay && <span><b>Cost/Day:</b> {mealInfo.costPerDay}<br/></span>}
+                            {mealInfo.recommendedSpots && mealInfo.recommendedSpots.length > 0 && (
+                              <span><i>Recommended: {mealInfo.recommendedSpots.join(', ')}</i></span>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </section>
                 )}
 
@@ -452,20 +447,28 @@ const TripSuggestions = () => {
           <div className={styles.topGrid}>
             <div className={styles.card}>
               <h2 className={styles.cardTitle}><FaCloudSun /> Weather Forecast</h2>
-              <input type="text" value={city} readOnly style={{ padding: '0.5rem' }} />
+              <input type="text" value={city} readOnly style={{ padding: '0.8rem', fontSize: '1rem', border: '1px solid rgb(94, 154, 239)', borderRadius: '4px', marginBottom: '1rem' }} />
               {loadingWeather ? (
                 <p>Loading weather forecast...</p>
               ) : weatherError ? (
                 <p>{weatherError}</p>
               ) : (
                 <ul className={styles.weatherList}>
-                  {weather.map(day => (
-                    <li key={day.day}>
-                      <span className={styles.weatherDay}>{day.day}</span>
-                      <span className={styles.weatherTemp}>{weatherIconMap[day.icon] || '❓'} {day.temp}</span>
-                      <span className={styles.weatherDesc}>{day.description}</span>
-                    </li>
-                  ))}
+                  {weather.map((day, idx) => {
+                    let dateLabel = day.day;
+                    if (checkin) {
+                      const checkinDate = new Date(checkin);
+                      const forecastDate = new Date(checkinDate.getTime() + idx * 24 * 60 * 60 * 1000);
+                      dateLabel = forecastDate.toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
+                    }
+                    return (
+                      <li key={dateLabel}>
+                        <span className={styles.weatherDay}>{dateLabel}</span>
+                        <span className={styles.weatherTemp}>{weatherIconMap[day.icon] || '❓'} {day.temp}</span>
+                        <span className={styles.weatherDesc}>{day.description}</span>
+                      </li>
+                    );
+                  })}
                 </ul>
               )}
             </div>

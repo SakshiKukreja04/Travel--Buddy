@@ -32,9 +32,32 @@
 }
 
 .hotelCard {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px #0001;
+  padding: 1rem 1.2rem 1.2rem 1.2rem;
+  min-width: 320px;
+  text-align: left;
   display: flex;
-  gap: 1.5rem;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  border: 2px solid #b3c6e0;
+}
+
+.hotelCard > * {
+  text-align: left !important;
+}
+
+.hotelCard ul {
+  padding-left: 1.2em;
+  text-align: left;
+  margin: 0.3em 0 0 0;
+}
+
+.hotelCard b {
+  display: inline-block;
+  margin-bottom: 0.2rem;
 }
 
 .hotelImage {
@@ -75,19 +98,21 @@
   border-radius: 12px;
   padding: 1rem;
   min-width: 200px;
+  border: 2px solid #8eb3e6;
 }
 
 .weatherList {
   list-style: none;
-  padding: 0;
-  margin: 0;
+  padding: 3px;
+  margin: 3px;
+  border: 1px solid #8eb3e6;
 }
 .weatherList li {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid #eee;
+  padding: 1rem 1rem;
+  border-bottom: 1px solid #87c3dc;
 }
 .weatherList li:last-child {
   border-bottom: none;
@@ -158,11 +183,67 @@
 }
 
 .mealCard {
-  background: #f7faff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 220px;
+  background: #fff;
   border-radius: 12px;
-  padding: 1rem;
-  width: 180px;
+  box-shadow: 0 2px 8px #0001;
+  padding: 1rem 1.2rem 1.2rem 1.2rem;
   text-align: center;
+}
+
+.mealImageWrapper {
+  position: relative;
+  width: 200px;
+  height: 150px;
+  margin-bottom: 0.7rem;
+}
+
+.mealImage {
+  width: 200px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-top: 0;
+  display: block;
+}
+
+.mealTypeOverlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: bold;
+  background: rgba(0,0,0,0.5);
+  opacity: 0;
+  border-radius: 8px;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+.mealImageWrapper:hover .mealTypeOverlay {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.mealCard > div:not(.mealImageWrapper) {
+  width: 100%;
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+.mealCard b {
+  display: inline-block;
+  margin-bottom: 0.2rem;
 }
 
 .itineraryGrid {
@@ -501,4 +582,19 @@ section.itinerarySection {
   gap: 0.4em;
   font-size: 1.1em;
   
+}
+
+.mealsColumn {
+  display: flex;
+  flex-direction: row;
+  gap: 2rem;
+  justify-content: flex-start;
+}
+
+.hotelsRow {
+  display: flex;
+  flex-direction: row;
+  gap: 2rem;
+  justify-content: flex-start;
+  margin-bottom: 2rem;
 }
