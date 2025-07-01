@@ -11,6 +11,7 @@ const Profile = () => {
   const [error, setError] = useState(null);
   const [selectedTrip, setSelectedTrip] = useState(null);
   const [showTripModal, setShowTripModal] = useState(false);
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
   // Fetch past trips when user is available
   useEffect(() => {
@@ -23,7 +24,7 @@ const Profile = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`http://localhost:3001/api/getPastTrips/${user.uid}`);
+      const response = await fetch(`${backendUrl}/api/getPastTrips/${user.uid}`);
       if (response.ok) {
         const data = await response.json();
         setPastTrips(data.trips || []);
@@ -41,7 +42,7 @@ const Profile = () => {
     if (!window.confirm('Are you sure you want to delete this trip?')) return;
     
     try {
-      const response = await fetch(`http://localhost:3001/api/deleteTrip/${tripId}`, {
+      const response = await fetch(`${backendUrl}/api/deleteTrip/${tripId}`, {
         method: 'DELETE',
       });
       

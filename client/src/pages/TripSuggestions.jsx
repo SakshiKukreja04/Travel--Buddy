@@ -37,6 +37,8 @@ const TripSuggestions = () => {
   const preference = tripDetails.preference || '';
   const budget = tripDetails.budget || 10000;
 
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
   // Function to save trip to MongoDB
   const saveTrip = async (suggestions) => {
     if (!user?.uid) {
@@ -58,7 +60,7 @@ const TripSuggestions = () => {
       
       console.log('Sending saveTrip request:', requestBody);
       
-      const response = await fetch('http://localhost:3001/api/saveTrip', {
+      const response = await fetch(`${backendUrl}/api/saveTrip`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -83,7 +85,7 @@ const TripSuggestions = () => {
 
   const fetchHotelImage = async (hotelName, city) => {
     try {
-      const response = await fetch('http://localhost:3001/api/fetchHotelImage', {
+      const response = await fetch(`${backendUrl}/api/fetchHotelImage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ hotelName, city }),

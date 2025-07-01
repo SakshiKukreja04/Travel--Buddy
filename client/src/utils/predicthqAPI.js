@@ -1,10 +1,10 @@
-const API_BASE_URL = 'http://localhost:3001/api';
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 /* ---------- utils/predicthqAPI.js ---------- */
 
 /* Call our backend */
 export async function fetchPredictHQEvents(city, checkin, checkout) {
-  const res = await fetch('http://localhost:3001/api/predicthq-events', {
+  const res = await fetch(`${backendUrl}/api/predicthq-events`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ city, checkin, checkout }),

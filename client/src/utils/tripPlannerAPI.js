@@ -1,5 +1,8 @@
+import.meta.env.VITE_BACKEND_URL;
+
 export async function getTripSuggestions({ city, checkIn, checkOut, preference, budget }) {
-  const response = await fetch('http://localhost:3001/api/deepseek-trip', {
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
+  const response = await fetch(`${backendUrl}/api/deepseek-trip`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ city, checkin: checkIn, checkout: checkOut, preference, budget })
