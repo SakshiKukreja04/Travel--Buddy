@@ -1,8 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-// Use node-fetch v2 for CommonJS compatibility
-// Make sure to run: npm install node-fetch@2
-const fetch = require('node-fetch');
+const axios = require('axios');
 const mongoose = require('mongoose');
 require('dotenv').config();
 
@@ -12,16 +10,18 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // CORS setup for Vercel frontend
-app.use(cors({
-  origin: ['https://travel-buddy-orpin.vercel.app/'], // <-- Replace with your real frontend domain
-  credentials: false 
-}));
+const corsOptions = {
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log("✅ Connected to MongoDB Atlas"))
-  .catch((err) => console.error("❌ MongoDB connection error:", err));
+  .then(() => console.log('✅ Connected to MongoDB Atlas'))
+  .catch((err) => console.error('❌ MongoDB connection error:', err));
 
 // Root route for Render health check
 app.get('/', (req, res) => {
@@ -35,14 +35,12 @@ app.get('/api/test', (req, res) => {
 app.post('/api/login', (req, res) => {
   const { email, password } = req.body;
   console.log('Login attempt:', { email });
-  // In a real app, you'd validate credentials here
   res.json({ success: true, message: 'Login successful (dummy)' });
 });
 
 app.post('/api/signup', (req, res) => {
   const { email, password } = req.body;
   console.log('Signup attempt:', { email });
-  // In a real app, you'd create a new user here
   res.json({ success: true, message: 'Signup successful (dummy)' });
 });
 
@@ -51,8 +49,6 @@ console.log('Using OpenRouter API Key:', process.env.OPENROUTER_API_KEY?.slice(0
 
 app.post('/api/deepseek-trip', async (req, res) => {
   const { city, checkin, checkout, preference, budget } = req.body;
-  
-  // Format preferences for the prompt
   const preferenceText = Array.isArray(preference) ? preference.join(', ') : preference;
 
   const prompt = `You are a smart travel planner.
@@ -68,21 +64,18 @@ Reply in valid JSON with these keys only: hotels, meals, itinerary, estimatedTot
 No extra text, no markdown, just the JSON object as response.`;
 
   try {
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
+    const response = await axios.post('https://openrouter.ai/api/v1/chat/completions', {
+      model: 'deepseek/deepseek-chat-v3-0324:free',
+      messages: [
+        { role: 'user', content: prompt }
+      ]
+    }, {
       headers: {
         'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
         'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: 'deepseek/deepseek-chat-v3-0324:free',
-        messages: [
-          { role: 'user', content: prompt }
-        ]
-      })
+      }
     });
-    const data = await response.json();
-    res.json(data);
+    res.json(response.data);
   } catch (error) {
     console.error('❌ Error in /api/deepseek-trip:', error);
     res.status(500).json({ error: 'Failed to fetch trip suggestions from OpenRouter' });
@@ -101,12 +94,12 @@ No extra text, no markdown, just the JSON object as response.`;
   
     try {
       /* 1️⃣  Get lat/lon with free OpenStreetMap Nominatim */
-      const geoResp = await fetch(
+      const geoResp = await axios.get(
         `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
           city
         )}&limit=1`
       );
-      const geoJson = await geoResp.json();
+      const geoJson = geoResp.data;
       if (!geoJson.length) throw new Error('City not found by geocoder');
   
       const { lat, lon, display_name } = geoJson[0];
@@ -115,7 +108,7 @@ No extra text, no markdown, just the JSON object as response.`;
       const startIso = new Date(checkin).toISOString();
       const endIso   = new Date(checkout).toISOString();
   
-      const phqResp = await fetch(
+      const phqResp = await axios.get(
         `https://api.predicthq.com/v1/events?within=50km@${lat},${lon}` +
           `&start.gte=${startIso}&start.lte=${endIso}` +
           `&limit=20&utc_offset=local`,
@@ -128,7 +121,7 @@ No extra text, no markdown, just the JSON object as response.`;
       );
       if (!phqResp.ok) throw new Error(`PredictHQ ${phqResp.status}`);
   
-      const { results } = await phqResp.json();
+      const { results } = phqResp.data;
   
       /* 3️⃣  Shape for the React front‑end */
       const events = results.map(e => ({
@@ -255,11 +248,11 @@ app.post('/api/fetchHotelImage', async (req, res) => {
   const query = city ? `${hotelName}, ${city}` : hotelName;
 
   try {
-    const response = await fetch(
+    const response = await axios.get(
       `https://www.googleapis.com/customsearch/v1?q=${encodeURIComponent(query)}&searchType=image&num=1&key=${process.env.GOOGLE_API_KEY}&cx=${process.env.GOOGLE_CX}`
     );
 
-    const data = await response.json();
+    const data = response.data;
     const imageUrl = data.items?.[0]?.link;
 
     if (imageUrl) {
@@ -277,10 +270,10 @@ app.post('/api/fetchMealImage', async (req, res) => {
   const { mealName } = req.body;
   if (!mealName) return res.status(400).json({ success: false, error: 'mealName is required' });
   try {
-    const response = await fetch(
+    const response = await axios.get(
       `https://www.googleapis.com/customsearch/v1?key=${process.env.GOOGLE_API_KEY}&cx=${process.env.GOOGLE_CX}&q=${encodeURIComponent(mealName)}&searchType=image&num=1`
     );
-    const data = await response.json();
+    const data = response.data;
     const imageUrl = data.items?.[0]?.link;
     if (imageUrl) {
       res.json({ success: true, imageUrl });
