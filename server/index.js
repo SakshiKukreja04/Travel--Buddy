@@ -9,15 +9,24 @@ require('dotenv').config();
 const PastTrip = require('./models/PastTrip');
 
 const app = express();
-const port = 3001;
+const PORT = process.env.PORT || 3001;
+
+// CORS setup for Vercel frontend
+app.use(cors({
+  origin: ['https://your-vercel-frontend-url.vercel.app'], // <-- Replace with your real frontend domain
+  credentials: true
+}));
+app.use(express.json());
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("✅ Connected to MongoDB Atlas"))
   .catch((err) => console.error("❌ MongoDB connection error:", err));
 
-app.use(cors());
-app.use(express.json());
+// Root route for Render health check
+app.get('/', (req, res) => {
+  res.send('Backend is running!');
+});
 
 app.get('/api/test', (req, res) => {
   res.json({ message: 'Hello from the backend!' });
@@ -36,18 +45,27 @@ app.post('/api/signup', (req, res) => {
   // In a real app, you'd create a new user here
   res.json({ success: true, message: 'Signup successful (dummy)' });
 });
-app.get('/api/test', (req, res) => {
-  res.json({ message: 'Test route working!' });
-});
+
 console.log('Loaded OpenRouter API Key:', process.env.OPENROUTER_API_KEY ? 'YES' : 'NO');
 console.log('Using OpenRouter API Key:', process.env.OPENROUTER_API_KEY?.slice(0, 8));
+
 app.post('/api/deepseek-trip', async (req, res) => {
   const { city, checkin, checkout, preference, budget } = req.body;
   
   // Format preferences for the prompt
   const preferenceText = Array.isArray(preference) ? preference.join(', ') : preference;
 
-  const prompt = `You are a smart travel planner.\n\nPlan a 5-day budget-friendly trip to ${city} for a traveler who prefers ${preferenceText} experiences.\nThe stay is from ${checkin} to ${checkout}. The total budget is ₹${budget}.\n\nIf the location is a state (like Goa), pick a popular city or region within it.\nIf the city is not well-known, generate a sample itinerary using general travel knowledge.\n\nInclude:\n\nHotel suggestions: Suggest at least 3 hotels (as an array), each with keys: name, type, location (address or area), totalCost (for 4 nights), and a 'features' array with at least 3 features (e.g., free WiFi, breakfast included, central location, etc.). The total hotel cost should not exceed ₹15,000.\n\nMeal suggestions (not day-wise): For each meal type (breakfast, lunch, dinner), reply as an object with keys: cuisineType, famousDish, minCost (in INR), and a 'recommendedRestaurants' array with at least 3 famous restaurant names for that meal.\n\nDay-wise itinerary: Use the check-in date as Day 1, and increment each day up to the check-out date, labeling each day with the actual date (e.g., 'Monday, 2024-06-10'). For each place/activity in the itinerary, include a 'minTransportCost' field (in INR) indicating the minimum local transport cost to reach that place.\n\nEstimated daily transport cost.\n\nA packing list (as an array of items) based on the weather forecast for the trip (e.g., if winter: warm clothes, if rainy: umbrella, if sunny: sunscreen, etc.).\n\nEnsure all costs stay within ₹${budget}.\n\nReply only in valid JSON format with keys:\n\nhotels (an array of at least 3 hotel objects)\nmeals (with cuisineType, famousDish, minCost, and recommendedRestaurants for each meal type)\nitinerary (with each day labeled by actual date, and each place/activity including minTransportCost)\nestimatedTotal\npackingList (array of items based on weather)\n\nExample JSON:\n{\n  "hotels": [\n    {\n      "name": "Hotel One",\n      "type": "Budget Hotel",\n      "location": "MG Road, City Center",\n      "totalCost": 5000,\n      "features": ["Free WiFi", "Breakfast included", "Central location"]\n    },\n    {\n      "name": "Hotel Two",\n      "type": "Boutique Hotel",\n      "location": "Near Railway Station",\n      "totalCost": 7000,\n      "features": ["Pool", "Gym", "Pet-friendly"]\n    },\n    {\n      "name": "Hotel Three",\n      "type": "Luxury Hotel",\n      "location": "Beachfront Avenue",\n      "totalCost": 12000,\n      "features": ["Spa", "Sea view", "Rooftop bar"]\n    }\n  ],\n  "meals": {\n    "breakfast": {\n      "cuisineType": "Continental",\n      "famousDish": "Pancakes",\n      "minCost": 150,\n      "recommendedRestaurants": ["Cafe XYZ", "Morning Glory", "Sunrise Diner"]\n    },\n    "lunch": {\n      "cuisineType": "Indian",\n      "famousDish": "Thali",\n      "minCost": 250,\n      "recommendedRestaurants": ["ABC Restaurant", "Spice Hub", "Curry House"]\n    },\n    "dinner": {\n      "cuisineType": "Italian",\n      "famousDish": "Pizza",\n      "minCost": 300,\n      "recommendedRestaurants": ["Pizzeria 123", "La Dolce Vita", "Roma Kitchen"]\n    }\n  },\n  "itinerary": {\n    "Monday, 2024-06-10": {\n      "Morning": {"place": "Beach", "minTransportCost": 100},\n      "Afternoon": {"place": "Museum", "minTransportCost": 80}\n    }\n  },\n  "estimatedTotal": {"breakdown": {"hotel": 5000, "meals": 2100}, "total": 8000},\n  "packingList": ["Warm clothes", "Umbrella", "Sunscreen"]\n}\n\nDo not include any code block formatting (such as triple backticks) or any extra explanation. Only output the JSON object as the response.`;
+  const prompt = `You are a smart travel planner.
+Plan a 5-day budget-friendly trip to ${city} for a traveler who prefers ${preferenceText} experiences.
+The stay is from ${checkin} to ${checkout}. The total budget is ₹${budget}.
+
+Reply in valid JSON with these keys only: hotels, meals, itinerary, estimatedTotal, packingList.
+- hotels: array of at least 3 hotels (name, type, location, totalCost, features[])
+- meals: for breakfast, lunch, dinner (cuisineType, famousDish, minCost, recommendedRestaurants[])
+- itinerary: day-wise plan with date labels, each place/activity with minTransportCost
+- estimatedTotal: object with breakdown and total
+- packingList: array of items based on weather
+No extra text, no markdown, just the JSON object as response.`;
 
   try {
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -66,6 +84,7 @@ app.post('/api/deepseek-trip', async (req, res) => {
     const data = await response.json();
     res.json(data);
   } catch (error) {
+    console.error('❌ Error in /api/deepseek-trip:', error);
     res.status(500).json({ error: 'Failed to fetch trip suggestions from OpenRouter' });
   }
 });
@@ -130,13 +149,13 @@ app.post('/api/deepseek-trip', async (req, res) => {
   
       res.json({ success: true, events });
     } catch (err) {
-      console.error(err);
+      console.error('❌ Error in /api/predicthq-events:', err);
       res.status(500).json({ error: 'PredictHQ fetch failed', details: err.message });
     }
   });
 
-app.listen(port, () => {
-  console.log(`Server listening at http://localhost:${port}`);
+app.listen(PORT, () => {
+  console.log(`🚀 Server listening at http://localhost:${PORT}`);
 }); 
 
 /* =========================================================
