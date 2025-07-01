@@ -13,8 +13,8 @@ const PORT = process.env.PORT || 3001;
 
 // CORS setup for Vercel frontend
 app.use(cors({
-  origin: ['https://your-vercel-frontend-url.vercel.app'], // <-- Replace with your real frontend domain
-  credentials: true
+  origin: ['https://travel-buddy-orpin.vercel.app/'], // <-- Replace with your real frontend domain
+  credentials: false 
 }));
 app.use(express.json());
 
