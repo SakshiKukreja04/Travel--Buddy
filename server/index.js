@@ -129,7 +129,10 @@ No extra text, no markdown, just the JSON object as response.`;
           },
         }
       );
-      if (!phqResp.ok) throw new Error(`PredictHQ ${phqResp.status}`);
+      if (phqResp.status !== 200) {
+        throw new Error(`PredictHQ ${phqResp.status}`);
+      }
+      
   
       const { results } = phqResp.data;
   
