@@ -96,9 +96,18 @@ No extra text, no markdown, just the JSON object as response.`;
     try {
       /* 1️⃣  Get lat/lon with free OpenStreetMap Nominatim */
       const geoResp = await axios.get(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-          city
-        )}&limit=1`
+        'https://nominatim.openstreetmap.org/search',
+        {
+          params: {
+            format: 'json',
+            q: city,
+            limit: 1
+          },
+          headers: {
+            'User-Agent': 'https://github.com/SakshiKukreja04/Travel--Buddy', // Replace with your email or GitHub
+            'Referer': 'https://travel-buddy-orpin.vercel.app'              // Replace with your actual frontend URL
+          }
+        }
       );
       const geoJson = geoResp.data;
       if (!geoJson.length) throw new Error('City not found by geocoder');
