@@ -7,7 +7,7 @@ require('dotenv').config();
 const PastTrip = require('./models/PastTrip');
 
 const app = express();
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 3001;
 
 // CORS setup for Vercel frontend
 const corsOptions = {
