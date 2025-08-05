@@ -1,0 +1,109 @@
+.footer {
+    background: #fff;
+    color: #222;
+    padding: 2.5rem 2rem 1rem 2rem;
+    font-size: 1rem;
+    border-top: 1px solid #eee;
+}
+
+.footerContent {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 2rem;
+}
+
+.brand {
+    flex: 1 1 300px;
+    min-width: 250px;
+}
+
+.logoContainer {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.logoImg {
+    height: 40px;
+}
+
+.logo {
+    font-size: 1.8rem;
+    margin-bottom: 0;
+    font-weight: 600;
+}
+
+.links {
+    display: flex;
+    gap: 4rem;
+}
+
+.links h4 {
+    margin-bottom: 0.7rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.links ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.links li {
+    margin-bottom: 0.5rem;
+}
+
+.links a {
+    color: #222;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.links a:hover {
+    color: #6B5B95;
+}
+
+.divider {
+    border: none;
+    border-top: 1px solid #eee;
+    margin: 2rem 0 1rem 0;
+}
+
+.footerBottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.socialIcons {
+    display: flex;
+    gap: 1.2rem;
+}
+
+.socialIcons a {
+    color: #888;
+    font-size: 1.3rem;
+    transition: color 0.2s;
+}
+
+.socialIcons a:hover {
+    color: #6B5B95;
+}
+
+@media (max-width: 900px) {
+    .footerContent {
+        flex-direction: column;
+        gap: 2rem;
+    }
+    .footerBottom {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+} 

@@ -1,0 +1,600 @@
+.pageContainer {
+  background: #e3f0ff;
+  min-height: 100vh;
+  padding: 2rem 0;
+}
+
+.mainTitle {
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.mainSubtitle {
+  font-size: 1.2rem;
+  color: #555;
+  margin-bottom: 2rem;
+}
+
+.card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px #0001;
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.sectionTitle {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #2d3a4a;
+}
+
+.hotelCard {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px #0001;
+  padding: 1rem 1.2rem 1.2rem 1.2rem;
+  min-width: 320px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  border: 2px solid #b3c6e0;
+}
+
+.hotelCard > * {
+  text-align: left !important;
+}
+
+.hotelCard ul {
+  padding-left: 1.2em;
+  text-align: left;
+  margin: 0.3em 0 0 0;
+}
+
+.hotelCard b {
+  display: inline-block;
+  margin-bottom: 0.2rem;
+}
+
+.hotelImage {
+  display: block;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto 1.2rem auto;
+  border-radius: 16px;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.10);
+  object-fit: cover;
+  transition: box-shadow 0.2s;
+}
+
+.hotelImage:hover {
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+}
+
+.hotelInfo {
+  flex: 1;
+}
+
+.hotelDetails h3 {
+  margin: 0 0 0.5rem 0;
+}
+.hotelDetails p {
+  margin: 0.2rem 0;
+  color: #555;
+}
+.hotelPrice {
+  font-weight: bold;
+  font-size: 1.2rem;
+  color: #333;
+  margin-top: 0.5rem;
+}
+
+.weatherCard {
+  background: #f7faff;
+  border-radius: 12px;
+  padding: 1rem;
+  min-width: 200px;
+  border: 2px solid #8eb3e6;
+}
+
+.weatherList {
+  list-style: none;
+  padding: 3px;
+  margin: 3px;
+  border: 1px solid #8eb3e6;
+}
+.weatherList li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1rem;
+  border-bottom: 1px solid #87c3dc;
+}
+.weatherList li:last-child {
+  border-bottom: none;
+}
+
+.weatherDay {
+  flex: 1;
+  font-weight: 500;
+}
+
+.weatherTemp {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+}
+
+.weatherDesc {
+  flex: 1;
+  text-align: right;
+  color: #555;
+  font-style: italic;
+}
+
+.packingGrid {
+  display: flex;
+  gap: 2rem;
+  justify-content: space-between;
+}
+
+.packingList {
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.packingListItem {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #e9ecef;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.packingListItem:last-child {
+  border-bottom: none;
+}
+
+.packingListItem:hover {
+  background-color: #e9ecef;
+}
+
+.packingIcon {
+  color: #28a745;
+  font-size: 1.2rem;
+}
+
+.packingCol {
+  flex: 1;
+}
+
+.mealGrid {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.mealCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 220px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px #0001;
+  padding: 1rem 1.2rem 1.2rem 1.2rem;
+  text-align: center;
+}
+
+.mealImageWrapper {
+  position: relative;
+  width: 200px;
+  height: 150px;
+  margin-bottom: 0.7rem;
+}
+
+.mealImage {
+  width: 200px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-top: 0;
+  display: block;
+}
+
+.mealTypeOverlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: bold;
+  background: rgba(0,0,0,0.5);
+  opacity: 0;
+  border-radius: 8px;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+.mealImageWrapper:hover .mealTypeOverlay {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.mealCard > div:not(.mealImageWrapper) {
+  width: 100%;
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+.mealCard b {
+  display: inline-block;
+  margin-bottom: 0.2rem;
+}
+
+.itineraryGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  margin-top: 1.5rem;
+}
+
+.itineraryCard {
+  border: 2px solid #b3c6e0;
+  border-radius: 10px;
+  background: #f7faff;
+  padding: 1rem;
+}
+
+.budgetTable {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.budgetTable th, .budgetTable td {
+  border: 2px solid lightblue;
+  padding: 0.7rem 1rem;
+  text-align: left;
+}
+
+.budgetTable th {
+  background: #f0f6ff;
+  font-weight: 600;
+}
+
+.budgetTable tfoot {
+  font-weight: bold;
+}
+
+.downloadSection {
+  text-align: right;
+  margin-top: 1.5rem;
+}
+.downloadBtn {
+  background-color: #333;
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+@media (max-width: 992px) {
+  .packingGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .packingGrid {
+    grid-template-columns: 1fr;
+  }
+  .hotelCard {
+    flex-direction: column;
+  }
+} 
+section {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background-color: #f9fcff;
+  border: 2px solid #9ac2f6;
+  border-radius: 12px;
+}
+
+section h3 {
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  color: #0b1523;
+}
+
+section p,
+section b,
+section i,
+section ul,
+section li {
+  color: #333;
+  font-size: 1rem;
+  line-height: 1.5;
+  margin: 0.3rem 0;
+}
+
+section ul {
+  padding-left: 1.2rem;
+  list-style: disc;
+}
+section {
+  margin-top: 2.5rem;
+  padding: 2rem;
+  background-color: #f4f9ff;
+  border: 1px solid #cce4ff;
+  border-left: 6px solid #0077cc;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: background 0.3s ease;
+}
+
+section:hover {
+  background-color: #eaf4ff;
+}
+
+section h3 {
+  margin-bottom: 1rem;
+  font-size: 1.6rem;
+  color: #003f73;
+  border-bottom: 1px solid #cce4ff;
+  padding-bottom: 0.3rem;
+}
+
+section p,
+section b,
+section i,
+section ul,
+section li {
+  color: #2c3e50;
+  font-size: 1rem;
+  line-height: 1.6;
+  margin: 0.4rem 0;
+}
+
+section ul {
+  padding-left: 1.5rem;
+  list-style-type: disc;
+}
+
+section li {
+  margin-bottom: 0.3rem;
+}
+section.itinerarySection {
+  margin-top: 2.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.itineraryDayCard {
+  background: #fff;
+  border: 2px solid #b3c6e0;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  padding: 2rem 1.5rem;
+  min-width: 320px;
+  max-width: 370px;
+  flex: 1 1 320px;
+  margin-bottom: 1rem;
+  transition: transform 0.18s, box-shadow 0.18s;
+}
+
+.itineraryDayCard:hover {
+  transform: translateY(-6px) scale(1.03);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.10);
+}
+
+.itineraryDayCard h4 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #e3eafc;
+  padding-bottom: 0.5rem;
+}
+
+.itineraryDayCard ul {
+  padding-left: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.itineraryDayCard li {
+  margin-bottom: 0.7rem;
+  color: #222;
+  font-size: 1.05rem;
+}
+
+@media (max-width: 900px) {
+  .itineraryGrid {
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+  .itineraryDayCard {
+    min-width: 0;
+    max-width: 100%;
+  }
+}
+
+/* PredictHQ Events Styles */
+.eventsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.eventCard {
+  background: #f8faff;
+  border: 1px solid #e1e8f0;
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.eventCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  border-color: #9ac2f6;
+}
+
+.eventHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.eventIcon {
+  font-size: 1.5rem;
+  background: #e3f0ff;
+  padding: 0.5rem;
+  border-radius: 8px;
+  min-width: 40px;
+  text-align: center;
+}
+
+.eventTitle {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2d3a4a;
+  flex: 1;
+}
+
+.eventTitle a {
+  color: #2d3a4a;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.eventTitle a:hover {
+  color: #007bff;
+  text-decoration: underline;
+}
+
+.eventDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.eventDate,
+.eventVenue,
+.eventAddress,
+.eventAttendance {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #555;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.eventDescription {
+  margin: 0.75rem 0 0 0;
+  font-size: 0.9rem;
+  color: #666;
+  line-height: 1.4;
+  font-style: italic;
+}
+
+.eventCategory {
+  display: inline-block;
+  background: #007bff;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 0.5rem;
+  align-self: flex-start;
+}
+
+/* Responsive design for events grid */
+@media (max-width: 768px) {
+  .eventsGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .eventCard {
+    padding: 1rem;
+  }
+  
+  .eventHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .eventIcon {
+    align-self: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .eventCard {
+    padding: 0.75rem;
+  }
+  
+  .eventTitle {
+    font-size: 1rem;
+  }
+  
+  .eventDate,
+  .eventVenue,
+  .eventAddress,
+  .eventAttendance {
+    font-size: 0.85rem;
+  }
+}
+
+.weatherIconTemp {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  font-size: 1.1em;
+  
+}
+
+.mealsColumn {
+  display: flex;
+  flex-direction: row;
+  gap: 2rem;
+  justify-content: flex-start;
+}
+
+.hotelsRow {
+  display: flex;
+  flex-direction: row;
+  gap: 2rem;
+  justify-content: flex-start;
+  margin-bottom: 2rem;
+}
