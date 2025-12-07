@@ -64,37 +64,59 @@ Reply in valid JSON with these keys only: hotels, meals, itinerary, estimatedTot
 - packingList: array of items based on weather
 No extra text, no markdown, just the JSON object as response.`;
 
-  try {
-    // Prefer the explicit API host and include stricter logging for debugging
-    const response = await axios.post('https://api.openrouter.ai/v1/chat/completions', {
-      model: 'deepseek/deepseek-chat',
-      messages: [
-        { role: 'user', content: prompt }
-      ]
-    }, {
-      headers: {
-        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        'Content-Type': 'application/json'
+  // Try multiple OpenRouter hosts in case of DNS/host issues (some environments may resolve one but not the other)
+  const openrouterHosts = [
+    'https://api.openrouter.ai/v1/chat/completions',
+    'https://openrouter.ai/api/v1/chat/completions'
+  ];
+
+  let lastError = null;
+  let response = null;
+
+  for (const host of openrouterHosts) {
+    try {
+      response = await axios.post(host, {
+        model: 'deepseek/deepseek-chat',
+        messages: [ { role: 'user', content: prompt } ]
+      }, {
+        headers: {
+          'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        timeout: 15000
+      });
+
+      // success — break the loop and return the response
+      return res.json(response.data);
+    } catch (err) {
+      lastError = err;
+      // Log host-specific diagnostics so Render logs show where it failed
+      console.error(`OpenRouter call failed for host=${host} —`, err.message || err);
+      if (err.response) {
+        console.error('Status:', err.response.status);
+        try { console.error('Data:', JSON.stringify(err.response.data)); } catch (e) { console.error('Data (unserializable)'); }
+      } else if (err.code) {
+        console.error('Error code:', err.code);
       }
-    });
 
-    res.json(response.data);
-  } catch (error) {
-    // Log useful diagnostics to help pinpoint why OpenRouter returns 404
-    console.error('❌ Error in /api/deepseek-trip: ', error.message);
-    if (error.response) {
-      console.error('Status:', error.response.status);
-      console.error('Headers:', error.response.headers);
-      console.error('Data:', JSON.stringify(error.response.data));
+      // If error is a network/DNS issue, try the next host. For HTTP errors that include a response (4xx/5xx) we will try next host only for DNS-like errors.
+      if (err.code && (err.code === 'ENOTFOUND' || err.code === 'EAI_AGAIN' || err.code === 'ECONNRESET')) {
+        // try next host
+        continue;
+      }
+
+      // For other errors (like 4xx from OpenRouter), no point retrying different host — break to return the error to client
+      break;
     }
-
-    // Provide a hint to the client (avoid leaking keys)
-    const msg = (error.response && error.response.data && (error.response.data.error || error.response.data.message))
-      ? error.response.data.error || error.response.data.message
-      : 'Failed to fetch trip suggestions from OpenRouter';
-
-    res.status(500).json({ error: msg });
   }
+
+  // If we reach here, all hosts failed — return diagnostic info without leaking sensitive data
+  console.error('❌ Final OpenRouter error (all hosts):', lastError && lastError.message);
+  const errMsg = (lastError && lastError.response && lastError.response.data && (lastError.response.data.error || lastError.response.data.message))
+    ? (lastError.response.data.error || lastError.response.data.message)
+    : (lastError && lastError.code) ? `Network error: ${lastError.code}` : 'Unknown OpenRouter error';
+
+  res.status(500).json({ error: errMsg });
 });
 
 // Lightweight health/check endpoint to validate OpenRouter credentials and list available models
