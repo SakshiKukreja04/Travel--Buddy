@@ -11,10 +11,10 @@ const PORT = process.env.PORT || 3001;
 
 // CORS setup for Vercel frontend
 const corsOptions = {
-  origin: 'https://travel-buddy-orpin.vercel.app',
+  origin: process.env.FRONTEND_URL || 'https://travel-buddy-orpin.vercel.app',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-
+  credentials: true
 };
 app.use(cors(corsOptions));
 app.use(express.json());
@@ -65,8 +65,9 @@ Reply in valid JSON with these keys only: hotels, meals, itinerary, estimatedTot
 No extra text, no markdown, just the JSON object as response.`;
 
   try {
-    const response = await axios.post('https://openrouter.ai/api/v1/chat/completions', {
-      model: 'deepseek/deepseek-chat-v3-0324:free',
+    // Prefer the explicit API host and include stricter logging for debugging
+    const response = await axios.post('https://api.openrouter.ai/v1/chat/completions', {
+      model: 'deepseek/deepseek-chat',
       messages: [
         { role: 'user', content: prompt }
       ]
@@ -76,10 +77,41 @@ No extra text, no markdown, just the JSON object as response.`;
         'Content-Type': 'application/json'
       }
     });
+
     res.json(response.data);
   } catch (error) {
-    console.error('❌ Error in /api/deepseek-trip:', error);
-    res.status(500).json({ error: 'Failed to fetch trip suggestions from OpenRouter' });
+    // Log useful diagnostics to help pinpoint why OpenRouter returns 404
+    console.error('❌ Error in /api/deepseek-trip: ', error.message);
+    if (error.response) {
+      console.error('Status:', error.response.status);
+      console.error('Headers:', error.response.headers);
+      console.error('Data:', JSON.stringify(error.response.data));
+    }
+
+    // Provide a hint to the client (avoid leaking keys)
+    const msg = (error.response && error.response.data && (error.response.data.error || error.response.data.message))
+      ? error.response.data.error || error.response.data.message
+      : 'Failed to fetch trip suggestions from OpenRouter';
+
+    res.status(500).json({ error: msg });
+  }
+});
+
+// Lightweight health/check endpoint to validate OpenRouter credentials and list available models
+app.get('/api/openrouter-check', async (req, res) => {
+  try {
+    const resp = await axios.get('https://api.openrouter.ai/v1/models', {
+      headers: { Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}` }
+    });
+    // Return a small subset so logs don't get noisy
+    const ids = (resp.data && Array.isArray(resp.data.models))
+      ? resp.data.models.slice(0, 20).map(m => ({ id: m.id, description: m.description || null }))
+      : resp.data;
+    res.json({ success: true, models: ids });
+  } catch (err) {
+    console.error('OpenRouter check error:', err.message);
+    if (err.response) console.error('OpenRouter check data:', err.response.data);
+    res.status(500).json({ success: false, error: err.response ? err.response.data : err.message });
   }
 });
 
